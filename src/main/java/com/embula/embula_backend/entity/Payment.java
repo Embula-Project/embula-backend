@@ -1,43 +1,27 @@
 package com.embula.embula_backend.entity;
-
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.Binary;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.List;
-
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "customer")
-public class Customer {
+@Document(collection = "payment")
+public class Payment {
+
     @Id
-    private String id;
+    private String paymentId;
 
-    private String firstName;
+    private String paymentMethod;
 
-    private String lastName;
-
-    private String email;
-
-    private String status;
-
-    private String address;
-
-    private List<String> phone;
-
-    private Binary image;
+    private String paymentAmount;
 
     @CreatedDate
-    private LocalDateTime createdAt;
-
+    private LocalDateTime paymentDate;
 
 }
-
