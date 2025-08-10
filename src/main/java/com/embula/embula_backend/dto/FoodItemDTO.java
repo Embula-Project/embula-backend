@@ -17,5 +17,5 @@ public class FoodItemDTO {
     private String description;
     private double price;
     private String portionSize;
-    private Binary image;
+    private byte[] image;
 }

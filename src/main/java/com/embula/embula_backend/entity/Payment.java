@@ -1,4 +1,5 @@
 package com.embula.embula_backend.entity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,9 +20,10 @@ public class Payment {
 
     private String paymentMethod;
 
-    private String paymentAmount;
+    private double paymentAmount;
 
     @CreatedDate
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
     private LocalDateTime paymentDate;
 
 }
