@@ -5,7 +5,6 @@ import com.embula.embula_backend.dto.response.FoodItemToMenuDTO;
 import com.embula.embula_backend.entity.FoodItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
-
 import java.util.List;
 
 @Mapper(componentModel = "spring")
