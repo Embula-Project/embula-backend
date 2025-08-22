@@ -1,5 +1,6 @@
 package com.embula.embula_backend.controller;
 
+import com.embula.embula_backend.dto.paginated.PaginatedAllFoodItems;
 import com.embula.embula_backend.dto.request.FoodItemUpdateDTO;
 import com.embula.embula_backend.dto.response.FoodItemToMenuDTO;
 import com.embula.embula_backend.entity.FoodItem;
@@ -33,11 +34,18 @@ public class FoodItemController {
     }
 
 
-    @GetMapping(path="getAllFoodItems")
-    public ResponseEntity<StandardResponse> getAllFoodItems (){
-        List<FoodItemToMenuDTO> foodItemToMenuDTO = foodItemService.getAllFoodItems();
+    @GetMapping(
+            path="getAllFoodItems",
+            params= {"page", "size"}
+    )
+    public ResponseEntity<StandardResponse> getAllFoodItems (
+            @RequestParam(value="page") int page,
+            @RequestParam(value="size")int size
+    ){
+//        List<FoodItemToMenuDTO> foodItemToMenuDTO = foodItemService.getAllFoodItems();
+        PaginatedAllFoodItems paginatedAllFoodItems = foodItemService.getAllFoodItemsPaginated(page,size);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
-                new StandardResponse(200,"Success", foodItemToMenuDTO),
+                new StandardResponse(200,"Success", paginatedAllFoodItems),
                 HttpStatus.OK
         );
         return responseEntity;

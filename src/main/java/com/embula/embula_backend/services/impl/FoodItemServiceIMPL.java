@@ -1,4 +1,5 @@
 package com.embula.embula_backend.services.impl;
+import com.embula.embula_backend.dto.paginated.PaginatedAllFoodItems;
 import com.embula.embula_backend.dto.request.FoodItemUpdateDTO;
 import com.embula.embula_backend.dto.response.FoodItemToMenuDTO;
 import com.embula.embula_backend.entity.FoodItem;
@@ -7,6 +8,8 @@ import com.embula.embula_backend.repository.FoodItemRepository;
 import com.embula.embula_backend.services.FoodItemService;
 import com.embula.embula_backend.util.mappers.FoodItemMappers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.awt.geom.NoninvertibleTransformException;
@@ -53,5 +56,18 @@ public class FoodItemServiceIMPL implements FoodItemService {
         }else{
             throw new NotFoundException("Item Not Found");
         }
+    }
+
+    @Override
+    public PaginatedAllFoodItems getAllFoodItemsPaginated (int page, int size){
+        Page<FoodItem> foodItems = foodItemRepository.findAll(PageRequest.of(page,size));
+        long count = foodItems.getTotalElements();
+        if(foodItems.isEmpty()){
+            throw new NotFoundException("There are no items to find.");
+        }
+        PaginatedAllFoodItems paginatedAllFoodItems = new PaginatedAllFoodItems(
+                foodItemMappers.PageToList(foodItems), count
+        );
+        return paginatedAllFoodItems;
     }
 }
