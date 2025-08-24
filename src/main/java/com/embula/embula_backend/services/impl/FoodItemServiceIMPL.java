@@ -2,6 +2,7 @@ package com.embula.embula_backend.services.impl;
 import com.embula.embula_backend.dto.paginated.PaginatedAllFoodItems;
 import com.embula.embula_backend.dto.request.FoodItemUpdateDTO;
 import com.embula.embula_backend.dto.response.FoodItemToMenuDTO;
+import com.embula.embula_backend.dto.response.ViewFoodItemDTO;
 import com.embula.embula_backend.entity.FoodItem;
 import com.embula.embula_backend.exception.NotFoundException;
 import com.embula.embula_backend.repository.FoodItemRepository;
@@ -49,7 +50,7 @@ public class FoodItemServiceIMPL implements FoodItemService {
     @Override
     public String updateFoodItem (String ItemId, FoodItemUpdateDTO foodItemUpdateDTO){
         if(foodItemRepository.existsById(ItemId)){
-            FoodItem foodItem = foodItemRepository.getFoodItemsByItemId(ItemId);
+            FoodItem foodItem = foodItemRepository.findFoodItemsByItemId(ItemId);
             foodItemMappers.updateFoodItem(foodItemUpdateDTO , foodItem);
             foodItemRepository.save(foodItem);
             return foodItem.getItemId() + " Updated Successfully";
@@ -69,5 +70,17 @@ public class FoodItemServiceIMPL implements FoodItemService {
                 foodItemMappers.PageToList(foodItems), count
         );
         return paginatedAllFoodItems;
+    }
+
+
+    @Override
+    public ViewFoodItemDTO viewFoodItem(String itemId){
+        if(foodItemRepository.existsById(itemId)){
+            FoodItem foodItem = foodItemRepository.findFoodItemsByItemId(itemId);
+            ViewFoodItemDTO viewFoodItemDTO = foodItemMappers.FoodItemToViewFoodItemDTO(foodItem);
+            return viewFoodItemDTO;
+        }else{
+            throw new NotFoundException("Item Not Found");
+        }
     }
 }
