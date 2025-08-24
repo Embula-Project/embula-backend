@@ -3,6 +3,7 @@ package com.embula.embula_backend.controller;
 import com.embula.embula_backend.dto.paginated.PaginatedAllFoodItems;
 import com.embula.embula_backend.dto.request.FoodItemUpdateDTO;
 import com.embula.embula_backend.dto.response.FoodItemToMenuDTO;
+import com.embula.embula_backend.dto.response.ViewFoodItemDTO;
 import com.embula.embula_backend.entity.FoodItem;
 import com.embula.embula_backend.services.FoodItemService;
 import com.embula.embula_backend.util.StandardResponse;
@@ -63,4 +64,18 @@ public class FoodItemController {
         );
         return responseEntity;
     }
+
+    @GetMapping(
+            path="viewFoodItem",
+            params="itemId"
+    )
+    public ResponseEntity<StandardResponse> viewFoodItemDetails (@RequestParam String itemId){
+        ViewFoodItemDTO viewFoodItemDTO = foodItemService.viewFoodItem(itemId);
+        ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
+                new StandardResponse(200,"Success", viewFoodItemDTO),
+                HttpStatus.OK
+        );
+        return responseEntity;
+    }
+
 }

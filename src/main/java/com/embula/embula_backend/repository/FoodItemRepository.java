@@ -9,6 +9,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 
 public interface FoodItemRepository extends MongoRepository<FoodItem, String> {
-    FoodItem getFoodItemsByItemId(String ItemId);
+    FoodItem findFoodItemsByItemId(String ItemId);
 
 }
