@@ -1,5 +1,6 @@
 package com.embula.embula_backend.controller;
 
+import com.embula.embula_backend.dto.FoodItemDTO;
 import com.embula.embula_backend.dto.paginated.PaginatedAllFoodItems;
 import com.embula.embula_backend.dto.request.FoodItemUpdateDTO;
 import com.embula.embula_backend.dto.response.FoodItemToMenuDTO;
@@ -10,8 +11,11 @@ import com.embula.embula_backend.util.StandardResponse;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.HandlerMapping;
 
 import java.util.List;
 
@@ -22,16 +26,32 @@ public class FoodItemController {
 
     @Autowired
     private FoodItemService foodItemService;
+    private HandlerMapping resourceHandlerMapping;
 
 
-    @PostMapping(path="saveItem")
-    public ResponseEntity<StandardResponse> saveFoodItem (FoodItem foodItem){
-        String message = foodItemService.saveFoodItem(foodItem);
-        ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
-                new StandardResponse(200,"Success", message),
-                HttpStatus.OK
-        );
+    ResponseEntity<StandardResponse> responseEntity;
+
+    @PostMapping(path="saveItem" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<StandardResponse> saveFoodItem (@RequestPart FoodItemDTO foodItemDTO,
+                                                          @RequestPart MultipartFile imageFile
+    ){
+
+        try{
+            String message = foodItemService.saveFoodItem(foodItemDTO , imageFile);
+            responseEntity = new ResponseEntity<>(
+                    new StandardResponse(200,"Success", message),
+                    HttpStatus.OK
+            );
+            return responseEntity;
+        }catch(Exception e){
+             responseEntity = new ResponseEntity<>(
+                    new StandardResponse(400, "Error", e.getMessage()),
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+
         return responseEntity;
+
     }
 
 

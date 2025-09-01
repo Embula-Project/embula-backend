@@ -1,5 +1,6 @@
 package com.embula.embula_backend.util.mappers;
 
+import com.embula.embula_backend.dto.FoodItemDTO;
 import com.embula.embula_backend.dto.request.FoodItemUpdateDTO;
 import com.embula.embula_backend.dto.response.FoodItemToMenuDTO;
 import com.embula.embula_backend.dto.response.ViewFoodItemDTO;
@@ -17,4 +18,5 @@ public interface FoodItemMappers {
     FoodItem updateFoodItem(FoodItemUpdateDTO foodItemUpdateDTO, @MappingTarget FoodItem foodItem);
     List<FoodItemToMenuDTO> PageToList(Page<FoodItem> foodItems);
     ViewFoodItemDTO FoodItemToViewFoodItemDTO(FoodItem foodItem);
+    FoodItem foodItemDTOToFoodItem (FoodItemDTO foodItemDTO);
 }

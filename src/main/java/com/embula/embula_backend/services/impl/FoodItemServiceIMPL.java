@@ -1,4 +1,5 @@
 package com.embula.embula_backend.services.impl;
+import com.embula.embula_backend.dto.FoodItemDTO;
 import com.embula.embula_backend.dto.paginated.PaginatedAllFoodItems;
 import com.embula.embula_backend.dto.request.FoodItemUpdateDTO;
 import com.embula.embula_backend.dto.response.FoodItemToMenuDTO;
@@ -12,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.geom.NoninvertibleTransformException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +32,11 @@ public class FoodItemServiceIMPL implements FoodItemService {
 
 
     @Override
-    public String saveFoodItem(FoodItem foodItem){
+    public String saveFoodItem(FoodItemDTO foodItemDTO , MultipartFile imageFile) throws IOException {
+        foodItemDTO.setImageName(imageFile.getOriginalFilename());
+        foodItemDTO.setImageType(imageFile.getContentType());
+        foodItemDTO.setImageData(imageFile.getBytes());
+        FoodItem foodItem = foodItemMappers.foodItemDTOToFoodItem(foodItemDTO);
         foodItemRepository.save(foodItem);
         return foodItem.getItemId() + " Saved Successfully";
     }

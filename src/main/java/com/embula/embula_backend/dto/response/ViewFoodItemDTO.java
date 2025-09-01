@@ -19,5 +19,7 @@ public class ViewFoodItemDTO {
     private String description;
     private double price;
     private String portionSize;
-    private byte[] image;
+    private String imageName;
+    private String imageType;
+    private byte[] imageData;
 }

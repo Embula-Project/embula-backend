@@ -1,4 +1,5 @@
 package com.embula.embula_backend.dto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,5 +18,13 @@ public class FoodItemDTO {
     private String description;
     private double price;
     private String portionSize;
-    private byte[] image;
+    @JsonIgnore
+    private String imageName;
+
+    @JsonIgnore
+    private String imageType;
+
+    @JsonIgnore
+    private byte[] imageData;
+
 }

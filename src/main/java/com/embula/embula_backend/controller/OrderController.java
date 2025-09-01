@@ -1,6 +1,7 @@
 package com.embula.embula_backend.controller;
 
 import com.embula.embula_backend.dto.OrderDTO;
+import com.embula.embula_backend.dto.paginated.PaginatedAllOrders;
 import com.embula.embula_backend.dto.response.ViewOrderDTO;
 import com.embula.embula_backend.services.OrderService;
 import com.embula.embula_backend.util.StandardResponse;
@@ -31,11 +32,35 @@ public class OrderController {
     }
 
 
-    @GetMapping(path="viewAllOrders")
-    public ResponseEntity<StandardResponse> viewOrder(){
-        List<ViewOrderDTO> viewOrderDTO = orderService.viewAllOrders();
+    @GetMapping(
+            path="viewAllOrders",
+            params={"page","size"}
+    )
+    public ResponseEntity<StandardResponse> viewOrder(
+            @RequestParam(value="page") int page,
+            @RequestParam(value="size") int size
+
+
+    ){
+       // List<ViewOrderDTO> viewOrderDTO = orderService.viewAllOrders();
+        PaginatedAllOrders paginatedAllOrders = orderService.viewAllOrders(page,size);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
-                new StandardResponse(200,"Success", viewOrderDTO),
+                new StandardResponse(200,"Success", paginatedAllOrders),
+                HttpStatus.OK
+        );
+
+        return responseEntity;
+    }
+
+
+    @PutMapping(
+            path="cancelOrder",
+            params="orderId"
+    )
+    public ResponseEntity<StandardResponse> cancelorder(@RequestParam String orderId){
+        String message= orderService.cancelOrder(orderId);
+        ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
+                new StandardResponse(200,"Success", message),
                 HttpStatus.OK
         );
 

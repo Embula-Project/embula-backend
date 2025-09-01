@@ -2,6 +2,7 @@ package com.embula.embula_backend.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.java.Log;
 import org.bson.types.Binary;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -29,7 +30,9 @@ public class FoodItem {
 
     private String portionSize;
 
-    private byte[] image;
+    private String imageName;
+    private String imageType;
+    private byte[] imageData;
 
 
 }
