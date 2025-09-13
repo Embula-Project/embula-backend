@@ -1,48 +1,71 @@
 package com.embula.embula_backend.entity;
+
 import com.embula.embula_backend.entity.enums.OrderStatus;
 import com.embula.embula_backend.entity.enums.OrderType;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Date;
+import java.util.Set;
 
+@Entity
+@Table(name = "orders") // "order" is reserved in SQL
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "order")
-
 public class Order {
 
     @Id
-    private String orderId;
+    @Column(name = "order_id", length = 45)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long orderId;
 
-    private String  orderName;
+    @Column(name = "order_name", length = 100)
+    private String orderName;
 
+    @Column(name = "order_description", length = 500)
     private String orderDescription;
 
+    @Column(name = "order_date")
     private LocalDate orderDate;
 
+    @Column(name = "order_time")
     private LocalTime orderTime;
 
-    private OrderStatus orderStatus; //fulfilled or unfulfilled need an enum
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_status", length = 20)
+    private OrderStatus orderStatus;
 
-    @CreatedDate
+    @Column(name = "order_created_date")
     private LocalDateTime orderCreatedDate;
 
-    private OrderType orderType; //pick up or dine-in need an enum
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_type", length = 20)
+    private OrderType orderType;
 
-    private String customerId;
+    @ManyToOne
+    @JoinColumn(name="customer_id", nullable=false)
+    private Customer customers;
 
-    private String itemId;
+    @OneToMany(mappedBy = "orders")
+    private Set<OrderFoodItem> orderFoodItem;
 
-    private String paymentId;
 
 
+    public Order(Customer customers, String orderName , String orderDescription, LocalDate orderDate, LocalTime orderTime,OrderStatus orderStatus,LocalDateTime orderCreatedDate, OrderType orderType){
+           this.customers = customers;
+           this.orderName = orderName;
+           this.orderDescription = orderDescription;
+           this.orderDate=orderDate;
+           this.orderTime= orderTime;
+            this.orderStatus = orderStatus;
+            this.orderCreatedDate = orderCreatedDate;
+            this.orderType = orderType;
+    }
 
 }

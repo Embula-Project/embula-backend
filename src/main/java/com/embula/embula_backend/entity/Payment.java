@@ -1,29 +1,29 @@
 package com.embula.embula_backend.entity;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "payment")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "payment")
 public class Payment {
 
     @Id
+    @Column(name = "payment_id", length = 45)
     private String paymentId;
 
+    @Column(name = "payment_method", length = 50)
     private String paymentMethod;
 
+    @Column(name = "payment_amount")
     private double paymentAmount;
 
-    @CreatedDate
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
+    @Column(name = "payment_date")
     private LocalDateTime paymentDate;
-
 }

@@ -3,7 +3,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.Binary;
 import java.util.List;
 
 @Data
@@ -11,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 public class FoodItemDTO {
 
-    private String itemId;
+    private Long itemId;
     private String itemName;
     private List<String> ingredients;
     private String type;

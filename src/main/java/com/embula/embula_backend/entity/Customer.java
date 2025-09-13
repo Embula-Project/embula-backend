@@ -1,43 +1,50 @@
 package com.embula.embula_backend.entity;
 
-
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.Binary;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
-
+@Entity
+@Table(name = "customer")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "customer")
 public class Customer {
+
     @Id
+    @Column(name = "customer_id", length = 45)
     private String id;
 
+    @Column(name = "first_name", length = 50)
     private String firstName;
 
+    @Column(name = "last_name", length = 50)
     private String lastName;
 
+    @Column(name = "email", length = 100)
     private String email;
 
+    @Column(name = "status", length = 20)
     private String status;
 
+    @Column(name = "address", length = 255)
     private String address;
 
-    private List<String> phone;
+    @Column(name = "phone", length = 20)
+    private String phone;
 
-    private Binary image;
+    @Lob
+    @Column(name = "image")
+    private byte[] image;
 
-    @CreatedDate
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-
+    @OneToMany(mappedBy = "customers")
+    private Set<Order> orders;
 }
-
