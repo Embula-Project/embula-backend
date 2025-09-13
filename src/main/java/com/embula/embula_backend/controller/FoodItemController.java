@@ -71,19 +71,19 @@ public class FoodItemController {
         );
         return responseEntity;
     }
-
-    @PutMapping(
-            path="updateFoodItem",
-            params="itemId"
-    )
-    public  ResponseEntity<StandardResponse> updateFoodItem (@RequestParam String itemId, @RequestBody FoodItemUpdateDTO foodItemUpdateDTO){
-        String message = foodItemService.updateFoodItem(itemId, foodItemUpdateDTO);
-        ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
-                new StandardResponse(200,"Success", message),
-                HttpStatus.OK
-        );
-        return responseEntity;
-    }
+//
+//    @PutMapping(
+//            path="updateFoodItem",
+//            params="itemId"
+//    )
+//    public  ResponseEntity<StandardResponse> updateFoodItem (@RequestParam String itemId, @RequestBody FoodItemUpdateDTO foodItemUpdateDTO){
+//        String message = foodItemService.updateFoodItem(itemId, foodItemUpdateDTO);
+//        ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
+//                new StandardResponse(200,"Success", message),
+//                HttpStatus.OK
+//        );
+//        return responseEntity;
+//    }
 
     @GetMapping(
             path="viewFoodItem",

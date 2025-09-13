@@ -2,6 +2,7 @@ package com.embula.embula_backend.controller;
 
 import com.embula.embula_backend.dto.OrderDTO;
 import com.embula.embula_backend.dto.paginated.PaginatedAllOrders;
+import com.embula.embula_backend.dto.request.RequestOrderSaveDTO;
 import com.embula.embula_backend.dto.response.ViewOrderDTO;
 import com.embula.embula_backend.services.OrderService;
 import com.embula.embula_backend.util.StandardResponse;
@@ -22,11 +23,11 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping(path="saveOrder")
-    public ResponseEntity<StandardResponse> saveOrder (OrderDTO orderDTO){
-        String message = orderService.saveOrder(orderDTO);
+    public ResponseEntity<StandardResponse> saveOrder (RequestOrderSaveDTO requestOrderSaveDTO){
+        String message = orderService.saveOrder(requestOrderSaveDTO);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
                 new StandardResponse(200,"Success", message),
-                HttpStatus.OK
+                HttpStatus.CREATED
         );
         return responseEntity;
     }
