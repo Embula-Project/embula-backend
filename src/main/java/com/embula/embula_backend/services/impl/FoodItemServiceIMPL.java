@@ -55,7 +55,7 @@ public class FoodItemServiceIMPL implements FoodItemService {
     }
 
     @Override
-    public String updateFoodItem (String ItemId, FoodItemUpdateDTO foodItemUpdateDTO){
+    public String updateFoodItem (long ItemId, FoodItemUpdateDTO foodItemUpdateDTO){
         if(foodItemRepository.existsById(ItemId)){
             FoodItem foodItem = foodItemRepository.findFoodItemsByItemId(ItemId);
             foodItemMappers.updateFoodItem(foodItemUpdateDTO , foodItem);
@@ -81,7 +81,7 @@ public class FoodItemServiceIMPL implements FoodItemService {
 
 
     @Override
-    public ViewFoodItemDTO viewFoodItem(String itemId){
+    public ViewFoodItemDTO viewFoodItem(long itemId){
         if(foodItemRepository.existsById(itemId)){
             FoodItem foodItem = foodItemRepository.findFoodItemsByItemId(itemId);
             ViewFoodItemDTO viewFoodItemDTO = foodItemMappers.FoodItemToViewFoodItemDTO(foodItem);
