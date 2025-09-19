@@ -89,7 +89,7 @@ public class FoodItemController {
             path="viewFoodItem",
             params="itemId"
     )
-    public ResponseEntity<StandardResponse> viewFoodItemDetails (@RequestParam String itemId){
+    public ResponseEntity<StandardResponse> viewFoodItemDetails (@RequestParam long itemId){
         ViewFoodItemDTO viewFoodItemDTO = foodItemService.viewFoodItem(itemId);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
                 new StandardResponse(200,"Success", viewFoodItemDTO),

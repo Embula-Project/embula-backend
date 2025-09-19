@@ -66,7 +66,7 @@ public class OrderServiceIMPL implements OrderService {
         );
         orderRepository.save(order);
 
-        if(orderRepository.existsById(order.getOrderId())){
+        if(orderRepository.existsById(String.valueOf(order.getOrderId()))){
             List<OrderFoodItem> orderFoodItem= modelMapper.map(requestOrderSaveDTO.getOrderFoodItem(),new TypeToken<List<OrderFoodItem>>(){}.getType());
             for(int i=0;i<orderFoodItem.size();i++){
                 orderFoodItem.get(i).setOrders(order);

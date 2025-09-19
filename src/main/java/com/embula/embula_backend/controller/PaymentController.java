@@ -8,6 +8,7 @@ import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,7 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @PostMapping(path="savePayment")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<StandardResponse> savePayments (PaymentDTO paymentDTO) {
         String message = paymentService.savePayment(paymentDTO);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
