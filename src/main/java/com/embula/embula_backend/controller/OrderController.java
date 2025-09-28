@@ -24,7 +24,7 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping(path="saveOrder")
-    @Secured({"ROLE_CUSTOMER", "ROLE_ADMIN"})
+//    @Secured({"ROLE_CUSTOMER", "ROLE_ADMIN"})
     public ResponseEntity<StandardResponse> saveOrder (RequestOrderSaveDTO requestOrderSaveDTO){
         String message = orderService.saveOrder(requestOrderSaveDTO);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
@@ -39,7 +39,7 @@ public class OrderController {
             path="viewAllOrders",
             params={"page","size"}
     )
-    @Secured({"ROLE_CUSTOMER", "ROLE_ADMIN"})
+//    @Secured({"ROLE_CUSTOMER", "ROLE_ADMIN"})
     public ResponseEntity<StandardResponse> viewOrder(
             @RequestParam(value="page") int page,
             @RequestParam(value="size") int size
@@ -61,7 +61,7 @@ public class OrderController {
             path="cancelOrder",
             params="orderId"
     )
-    @Secured("ROLE_CUSTOMER")
+//    @Secured("ROLE_CUSTOMER")
     public ResponseEntity<StandardResponse> cancelorder(@RequestParam String orderId){
         String message= orderService.cancelOrder(orderId);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(

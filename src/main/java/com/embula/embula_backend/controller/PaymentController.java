@@ -23,7 +23,7 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @PostMapping(path="savePayment")
-    @Secured("ROLE_ADMIN")
+//    @Secured("ROLE_ADMIN")
     public ResponseEntity<StandardResponse> savePayments (PaymentDTO paymentDTO) {
         String message = paymentService.savePayment(paymentDTO);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
