@@ -2,6 +2,7 @@ package com.embula.embula_backend.services;
 
 import com.embula.embula_backend.dto.OrderDTO;
 import com.embula.embula_backend.dto.paginated.PaginatedAllOrders;
+import com.embula.embula_backend.dto.paginated.PaginatedStatusCustomerOrders;
 import com.embula.embula_backend.dto.request.RequestOrderSaveDTO;
 import com.embula.embula_backend.dto.response.ViewOrderDTO;
 
@@ -12,4 +13,5 @@ public interface OrderService {
     public String saveOrder(RequestOrderSaveDTO requestOrderSaveDTO);
     public PaginatedAllOrders viewAllOrders(int page, int size);
     public String cancelOrder(String orderId);
+    public PaginatedStatusCustomerOrders statusCustomerOrders(String status, int page , int size);
 }

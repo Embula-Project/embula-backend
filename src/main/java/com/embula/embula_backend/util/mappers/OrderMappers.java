@@ -1,6 +1,9 @@
 package com.embula.embula_backend.util.mappers;
 
 import com.embula.embula_backend.dto.OrderDTO;
+import com.embula.embula_backend.dto.paginated.PaginatedStatusCustomerOrders;
+import com.embula.embula_backend.dto.queryInterface.StatusCustomerOrderInterface;
+import com.embula.embula_backend.dto.response.StatusCustomerOrdersDTO;
 import com.embula.embula_backend.dto.response.ViewOrderDTO;
 import com.embula.embula_backend.entity.Order;
 import org.mapstruct.Mapper;
@@ -12,4 +15,5 @@ import java.util.List;
 public interface OrderMappers {
     Order OrderDTOToOrder(OrderDTO orderDTO);
     List<ViewOrderDTO> OrderToViewOrderDTO(Page<Order> orders);
+    List<StatusCustomerOrdersDTO> statusCustomerOrderInterfacesToStatusCustomerOrdersDTO (List<StatusCustomerOrderInterface> statusCustomerOrderInterfaces);
 }

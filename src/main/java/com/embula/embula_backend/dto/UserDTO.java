@@ -13,4 +13,11 @@ public class UserDTO {
     private String email;
     private String password;
     private String role;
+
+    // Customer specific fields (optional - only needed when role is CUSTOMER)
+    private String firstName;
+    private String lastName;
+    private String address;
+    private String phone;
+    private byte[] image;
 }
