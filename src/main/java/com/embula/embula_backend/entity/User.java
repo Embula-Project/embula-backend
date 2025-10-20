@@ -18,6 +18,12 @@ public class User {
     @Column(name="user_id")
     private Long id;
 
+    @Column(name="first_name")
+    private String firstName;
+
+    @Column(name="last_name")
+    private String lastName;
+
     @Id
     @Column(name="email")
     private String email;
@@ -28,6 +34,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name="role")
     private UserRole role;
+
 
 
 }

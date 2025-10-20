@@ -2,8 +2,11 @@ package com.embula.embula_backend.services.impl;
 
 import com.embula.embula_backend.dto.OrderDTO;
 import com.embula.embula_backend.dto.paginated.PaginatedAllOrders;
+import com.embula.embula_backend.dto.paginated.PaginatedStatusCustomerOrders;
+import com.embula.embula_backend.dto.queryInterface.StatusCustomerOrderInterface;
 import com.embula.embula_backend.dto.request.RequestOrderFoodItemSaveDTO;
 import com.embula.embula_backend.dto.request.RequestOrderSaveDTO;
+import com.embula.embula_backend.dto.response.StatusCustomerOrdersDTO;
 import com.embula.embula_backend.dto.response.ViewOrderDTO;
 import com.embula.embula_backend.entity.FoodItem;
 import com.embula.embula_backend.entity.Order;
@@ -28,6 +31,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -105,5 +109,18 @@ public class OrderServiceIMPL implements OrderService {
         }
 
 
+    }
+
+    @Override
+    public PaginatedStatusCustomerOrders statusCustomerOrders (String status, int page , int size){
+        List<StatusCustomerOrderInterface> statusCustomerOrderInterfaces = orderRepository.statusCustomerOrders(status, PageRequest.of(page,size));
+        List<StatusCustomerOrdersDTO> statusCustomerOrdersDTO = new ArrayList<>();
+        statusCustomerOrdersDTO = orderMappers.statusCustomerOrderInterfacesToStatusCustomerOrdersDTO(statusCustomerOrderInterfaces);
+        PaginatedStatusCustomerOrders paginatedStatusCustomerOrders = new PaginatedStatusCustomerOrders(
+                statusCustomerOrdersDTO,
+                orderRepository.countStatusCustomerOrders(status)
+        );
+
+        return paginatedStatusCustomerOrders;
     }
 }
