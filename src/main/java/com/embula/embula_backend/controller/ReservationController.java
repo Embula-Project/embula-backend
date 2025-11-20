@@ -1,6 +1,5 @@
 package com.embula.embula_backend.controller;
 
-import com.embula.embula_backend.dto.*;
 import com.embula.embula_backend.dto.request.ReservationRequest;
 import com.embula.embula_backend.dto.response.ReservationResponse;
 import com.embula.embula_backend.entity.Reservation;
@@ -8,6 +7,7 @@ import com.embula.embula_backend.exception.ReservationConflictException;
 import com.embula.embula_backend.services.ReservationService;
 import com.embula.embula_backend.services.TableDto;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
@@ -20,8 +20,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:3000")
+
 public class ReservationController {
 
+
+    @Autowired
     private final ReservationService service;
 
     public ReservationController(ReservationService service) {
@@ -58,4 +61,15 @@ public class ReservationController {
             return ResponseEntity.badRequest().body("Invalid start datetime. Use ISO format: 2025-09-20T19:00:00");
         }
     }
+//cancel update rservation
+    @PutMapping("/reservations/{id}/cancel")
+    public ResponseEntity<?> cancelReservation(@PathVariable Long id) {
+        try {
+            service.cancelReservation(id);
+            return ResponseEntity.ok("Reservation cancelled successfully.");
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+        }
+    }
+
 }
