@@ -2,6 +2,7 @@ package com.embula.embula_backend.controller;
 
 import com.embula.embula_backend.dto.OrderDTO;
 import com.embula.embula_backend.dto.paginated.PaginatedAllOrders;
+import com.embula.embula_backend.dto.paginated.PaginatedStatusCustomerOrders;
 import com.embula.embula_backend.dto.request.RequestOrderSaveDTO;
 import com.embula.embula_backend.dto.response.ViewOrderDTO;
 import com.embula.embula_backend.services.OrderService;
@@ -10,6 +11,7 @@ import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +25,8 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping(path="saveOrder")
-    public ResponseEntity<StandardResponse> saveOrder (RequestOrderSaveDTO requestOrderSaveDTO){
+//    @Secured({"ROLE_CUSTOMER", "ROLE_ADMIN"})
+    public ResponseEntity<StandardResponse> saveOrder (@RequestBody RequestOrderSaveDTO requestOrderSaveDTO){
         String message = orderService.saveOrder(requestOrderSaveDTO);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
                 new StandardResponse(200,"Success", message),
@@ -37,6 +40,7 @@ public class OrderController {
             path="viewAllOrders",
             params={"page","size"}
     )
+//    @Secured({"ROLE_CUSTOMER", "ROLE_ADMIN"})
     public ResponseEntity<StandardResponse> viewOrder(
             @RequestParam(value="page") int page,
             @RequestParam(value="size") int size
@@ -58,10 +62,33 @@ public class OrderController {
             path="cancelOrder",
             params="orderId"
     )
+//    @Secured("ROLE_CUSTOMER")
     public ResponseEntity<StandardResponse> cancelorder(@RequestParam String orderId){
         String message= orderService.cancelOrder(orderId);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
                 new StandardResponse(200,"Success", message),
+                HttpStatus.OK
+        );
+
+        return responseEntity;
+    }
+
+    @GetMapping(
+            path={"/status-customer-orders"},
+            params = {"status","page", "size"}
+    )
+    public ResponseEntity<StandardResponse> statusCustomerOrders(
+            @RequestParam(value="status") String status,
+            @RequestParam(value="page") int page,
+            @RequestParam(value="size") int size
+    ){
+        PaginatedStatusCustomerOrders paginatedStatusCustomerOrders =null;
+        if(status.equalsIgnoreCase("active" )|| status.equalsIgnoreCase("inactive")){
+            paginatedStatusCustomerOrders = orderService.statusCustomerOrders(status, page,size);
+
+        }
+        ResponseEntity<StandardResponse> responseEntity= new ResponseEntity<>(
+                new StandardResponse(200, "Success", paginatedStatusCustomerOrders),
                 HttpStatus.OK
         );
 

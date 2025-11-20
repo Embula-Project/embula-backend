@@ -9,8 +9,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FoodItemDTO {
-
-    private Long itemId;
     private String itemName;
     private List<String> ingredients;
     private String type;

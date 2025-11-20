@@ -47,7 +47,7 @@ public class FoodItem {
     private String imageType;
 
     @Lob
-    @Column(name = "image_data")
+    @Column(name = "image_data", columnDefinition = "LONGBLOB")
     private byte[] imageData;
 
     @OneToMany(mappedBy = "foodItems")
