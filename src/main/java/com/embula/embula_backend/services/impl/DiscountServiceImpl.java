@@ -1,6 +1,5 @@
 package com.embula.embula_backend.services.impl;
 
-
 import com.embula.embula_backend.entity.Discount;
 import com.embula.embula_backend.repository.DiscountRepository;
 import com.embula.embula_backend.services.DiscountService;

@@ -1,6 +1,5 @@
 package com.embula.embula_backend.controller;
 
-
 import com.embula.embula_backend.entity.Discount;
 import com.embula.embula_backend.services.DiscountService;
 import lombok.RequiredArgsConstructor;
