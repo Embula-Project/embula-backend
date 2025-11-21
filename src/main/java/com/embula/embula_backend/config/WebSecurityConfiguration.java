@@ -14,15 +14,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+// @EnableGlobalMethodSecurity(prePostEnabled = true) // Temporarily disable method security
 public class WebSecurityConfiguration {
 
-    @Autowired
-    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    //    @Autowired
+    //    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -31,28 +32,17 @@ public class WebSecurityConfiguration {
 
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtRequestFilter jwtRequestFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())    // disable CSRF for testing
+                .csrf(AbstractHttpConfigurer::disable)    // disable CSRF
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
-                        .requestMatchers("/api/v1/user/register-user", "/api/v1/login/authentication", "/api/v1/order/saveOrder", "/api/v1/order/status-customer-orders").permitAll() // public endpoints
-                        .requestMatchers(HttpHeaders.ALLOW).permitAll()
-                        .anyRequest().authenticated()  // all other endpoints require auth
-
-                )
-                .exceptionHandling(ex->ex
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)    //this handles the error when any erro occured during the authentication process
+                        .anyRequest().permitAll()  // Permit all requests temporarily
                 )
                 .sessionManagement(session->session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)//this lets not to implement other session based security authenticatrions
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
 
-        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        // http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // Temporarily disable JWT filter
 
         return http.build();
     }

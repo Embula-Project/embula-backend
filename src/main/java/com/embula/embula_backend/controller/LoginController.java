@@ -18,13 +18,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api/v1/login")
 public class LoginController {
 
     @Autowired
     private JwtService jwtService;
 
-    @PostMapping("/authentication")
+    @PostMapping("/api/v1/login/authentication")
     public LoginResponse createJwtTokenAndLogin(@RequestBody LoginRequest loginRequet){
         System.out.println(loginRequet);
         LoginResponse loginResponse= new LoginResponse();
@@ -34,5 +33,3 @@ public class LoginController {
     }
 
 }
-
-

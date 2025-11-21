@@ -55,6 +55,7 @@ import com.embula.embula_backend.entity.User;
 import com.embula.embula_backend.repository.UserRepository;
 import com.embula.embula_backend.services.JwtService;
 import com.embula.embula_backend.util.JwtUtil;
+import jakarta.persistence.Column;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -64,6 +65,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -146,6 +148,6 @@ public class JwtServiceIMPL implements JwtService {
         );
 
         return loginResponse;
+
     }
 }
-
