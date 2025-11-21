@@ -1,10 +1,10 @@
 package com.embula.embula_backend.dto.request;
 
+import com.embula.embula_backend.entity.enums.MealType;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Data
 public class ReservationRequestDto {
@@ -23,12 +23,11 @@ public class ReservationRequestDto {
     @FutureOrPresent(message = "Reservation date cannot be in the past")
     private LocalDate date;
 
-    @NotNull(message = "Time is required")
-    private LocalTime time;
+    @NotNull(message = "Meal type is required")
+    private MealType mealType;
 
     @Min(value = 1, message = "Number of guests must be at least 1")
     private int numberOfGuests;
 
     private Long tableId;
 }
-

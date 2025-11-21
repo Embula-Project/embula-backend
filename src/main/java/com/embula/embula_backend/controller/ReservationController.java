@@ -3,6 +3,7 @@ package com.embula.embula_backend.controller;
 import com.embula.embula_backend.dto.request.ReservationRequestDto;
 import com.embula.embula_backend.dto.response.ReservationResponseDto;
 import com.embula.embula_backend.entity.RestaurantTable;
+import com.embula.embula_backend.entity.enums.MealType;
 import com.embula.embula_backend.services.ReservationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -22,12 +22,18 @@ public class ReservationController {
 
     private final ReservationService reservationService;
 
+    @GetMapping("/available-tables")
+    public ResponseEntity<List<RestaurantTable>> getAllAvailableTables() {
+        List<RestaurantTable> tables = reservationService.getAllAvailableTables();
+        return ResponseEntity.ok(tables);
+    }
+
     @GetMapping("/available")
     public ResponseEntity<List<RestaurantTable>> getAvailableTables(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime time,
+            @RequestParam MealType mealType,
             @RequestParam int guests) {
-        List<RestaurantTable> tables = reservationService.getAvailableTables(date, time, guests);
+        List<RestaurantTable> tables = reservationService.getAvailableTables(date, mealType, guests);
         return ResponseEntity.ok(tables);
     }
 
@@ -48,5 +54,12 @@ public class ReservationController {
         reservationService.cancelReservation(id);
         return ResponseEntity.noContent().build();
     }
-}
 
+    @GetMapping("/check")
+    public ResponseEntity<List<ReservationResponseDto>> checkReservations(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam MealType mealType) {
+        List<ReservationResponseDto> reservations = reservationService.findReservationsByDateAndMealType(date, mealType);
+        return ResponseEntity.ok(reservations);
+    }
+}
