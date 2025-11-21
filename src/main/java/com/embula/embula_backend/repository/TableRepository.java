@@ -14,8 +14,7 @@ public interface TableRepository extends JpaRepository<RestaurantTable, Long> {
             + "ORDER BY t.capacity ASC")
     List<RestaurantTable> findAvailableTables(
             @Param("members") int members,
-            @Param("bookedIds") List<Long> bookedIds,
-            @Param("bookedSize") int bookedSize);
+            @Param("bookedIds") List<Long> bookedIds);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT t FROM RestaurantTable t WHERE t.id = :id")
