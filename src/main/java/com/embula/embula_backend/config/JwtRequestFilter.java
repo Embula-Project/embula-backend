@@ -7,6 +7,7 @@ import com.embula.embula_backend.util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,14 +31,23 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private CustomerDetailsService customerDetailsService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/swagger-ui") ||
+               path.startsWith("/v3/api-docs") ||
+               path.startsWith("/auth/") ||
+               path.startsWith("/api-docs") ||
+               path.startsWith("/favicon.ico");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String requestTokenHeader = request.getHeader("Authorization");
 
         String username = null;
         String jwtToken= null;
-        System.out.println("requestTokenHeader:"+requestTokenHeader);
 
-        if(requestTokenHeader != null && requestTokenHeader.startsWith("Bearer")){
+        if(requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")){
             jwtToken = requestTokenHeader.substring(7);
             System.out.println("jwtToken:"+jwtToken);
             try{
@@ -48,8 +58,23 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             }catch(ExpiredJwtException e){
                 System.out.println(e.getMessage());
             }
-        }else{
-            System.out.println("Jwt is not validated");
+        } else if(request.getCookies() != null) {
+            // Fallback: check for authToken cookie
+            for (Cookie cookie : request.getCookies()) {
+                if ("authToken".equals(cookie.getName())) {
+                    jwtToken = cookie.getValue();
+                    System.out.println("jwtToken from cookie:"+jwtToken);
+                    try{
+                        username = jwtUtil.getUsernameFromToken(jwtToken);
+                        System.out.println("username:"+username);
+                    }catch(IllegalArgumentException e){
+                        System.out.println(e.getMessage());
+                    }catch(ExpiredJwtException e){
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+                }
+            }
         }
 
         if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
