@@ -1,58 +1,55 @@
 package com.embula.embula_backend.entity;
 
+import com.embula.embula_backend.entity.enums.ReservationStatus;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Date;
 
 @Entity
-@Table(name = "reservation")
+@Table(name = "reservations")
 @Data
-@Getter
-@Setter
 public class Reservation {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "table_id")
-    private com.embula.embula_backend.entity.RestaurantTable table;
-
-    private LocalDateTime reservationStart;
-    private LocalDateTime reservationEnd;
-    private int members;
-    private String mealType;
+    @Column(nullable = false)
     private String customerName;
+
+    @Column(nullable = false)
+    private String customerEmail;
+
+    @Column(nullable = false)
     private String customerPhone;
-    private String status; // e.g. CONFIRMED, CANCELLED
 
-    @Version
-    private Long version;
+    @Column(nullable = false)
+    private LocalDate date;
 
-    // Constructors, getters, setters
-    public Reservation() {}
-    // getters / setters omitted for brevity — add them or use Lombok
-    // ... (include all standard getters/setters)
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public RestaurantTable getTable() { return table; }
-    public void setTable(RestaurantTable table) { this.table = table; }
-    public LocalDateTime getReservationStart() { return reservationStart; }
-    public void setReservationStart(LocalDateTime reservationStart) { this.reservationStart = reservationStart; }
-    public LocalDateTime getReservationEnd() { return reservationEnd; }
-    public void setReservationEnd(LocalDateTime reservationEnd) { this.reservationEnd = reservationEnd; }
-    public int getMembers() { return members; }
-    public void setMembers(int members) { this.members = members; }
-    public String getMealType() { return mealType; }
-    public void setMealType(String mealType) { this.mealType = mealType; }
-    public String getCustomerName() { return customerName; }
-    public void setCustomerName(String customerName) { this.customerName = customerName; }
-    public String getCustomerPhone() { return customerPhone; }
-    public void setCustomerPhone(String customerPhone) { this.customerPhone = customerPhone; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    public Long getVersion() { return version; }
-    public void setVersion(Long version) { this.version = version; }
+    @Column(nullable = false)
+    private LocalTime time;
+
+    @Column(nullable = false)
+    private int numberOfGuests;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ReservationStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "table_id", nullable = false)
+    private RestaurantTable table;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Date createdAt;
+
+    @UpdateTimestamp
+    private Date updatedAt;
 }
+
