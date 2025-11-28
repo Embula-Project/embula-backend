@@ -29,7 +29,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Autowired
     private CustomerDetailsService customerDetailsService;
-
+    
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();

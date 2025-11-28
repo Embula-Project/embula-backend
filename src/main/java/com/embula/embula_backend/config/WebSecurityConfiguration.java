@@ -22,8 +22,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 // @EnableGlobalMethodSecurity(prePostEnabled = true) // Temporarily disable method security
 public class WebSecurityConfiguration {
 
-    //    @Autowired
-    //    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    @Autowired
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @Autowired
+    private JwtRequestFilter jwtRequestFilter;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -34,18 +37,46 @@ public class WebSecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)    // disable CSRF
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // Enable CORS
+                .csrf(csrf -> csrf.disable())    // disable CSRF for testing
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()  // Permit all requests temporarily
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/authentication"
+                        ).permitAll()
+                        .requestMatchers("/api/v1/login/authentication", "/api/v1/user/register-user","/api/v1/fooditem/getAllFoodItems").permitAll() // public endpoints
+                        .requestMatchers("OPTIONS", "/**").permitAll() // Allow preflight requests
+                        .requestMatchers(HttpHeaders.ALLOW).permitAll()
+                        .anyRequest().authenticated()  // all other endpoints require auth
+
+                )
+                .exceptionHandling(ex->ex
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)    //this handles the error when any erro occured during the authentication process
                 )
                 .sessionManagement(session->session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)//this lets not to implement other session based security authenticatrions
                 );
-
-        // http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class); // Temporarily disable JWT filter
-
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);//Mentioning about the place where to add the filter after or before -> Correct Placement of the Filter
+        //Add to Filter chain before usernamepasswordAuthenticationFilter
         return http.build();
     }
+    @Bean
+    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOriginPattern("http://localhost:3000"); // Use allowedOriginPattern instead
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source =
+                new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
+    }
+
 
     @Bean
     public PasswordEncoder passwordEncoder(){
