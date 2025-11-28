@@ -14,5 +14,7 @@ public class PaymentDTO {
     private String paymentId;
     private String paymentMethod;
     private double paymentAmount;
+    private String stripePaymentIntentId;
+    private String customerId;
 
 }
