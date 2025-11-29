@@ -2,7 +2,6 @@ package com.embula.embula_backend.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.bson.types.Binary;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
@@ -19,8 +18,8 @@ public class CustomerDTO {
     private String email;
     private String status;
     private String address;
-    private List<String> phone;
-    private Binary image;
+    private String phone;
+    private byte[] image;
     private LocalDateTime createdAt;
 
 
