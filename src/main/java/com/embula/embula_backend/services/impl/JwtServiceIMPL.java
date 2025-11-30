@@ -134,20 +134,38 @@ public class JwtServiceIMPL implements JwtService {
         UserDetails userDetails =loadUserByUsername(userName);
         User user = userRepo.findById(userName).get();
         System.out.println(user);
-        String generatedToken = jwtUtil.generateToken(
+        String accessToken = jwtUtil.generateToken(
                 userDetails,
                 user.getFirstName(),
                 user.getLastName(),
                 user.getRole()
         );
-
-
+        String refreshToken = jwtUtil.generateRefreshToken(userDetails);
         LoginResponse loginResponse = new LoginResponse(
                 user,
-                generatedToken
+                accessToken,
+                refreshToken
         );
 
         return loginResponse;
+    }
 
+    //Validate the Refresh Token
+    public LoginResponse refreshAccessToken(String refreshToken) throws Exception{
+        if(!jwtUtil.validateRefreshToken(refreshToken) || refreshToken==null){
+            throw new Exception("Invalid Refresh Token");
+        }
+        String username = jwtUtil.getUsernameFromToken(refreshToken);
+        User user = userRepo.findById(username).orElseThrow();
+
+        UserDetails userDetails = loadUserByUsername(username);
+
+        String newAccessToken = jwtUtil.generateToken(
+                userDetails,
+                user.getFirstName(),
+                user.getLastName(),
+                user.getRole()
+        );
+        return new LoginResponse(user, newAccessToken, refreshToken);
     }
 }
