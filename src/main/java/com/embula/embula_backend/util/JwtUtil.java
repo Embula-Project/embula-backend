@@ -26,6 +26,9 @@ public class JwtUtil {
     @Value("${jwt.token-validity}")
     private int TOKEN_VALIDITY;
 
+    @Value("${jwt.refresh-token-validity}")
+    private int REFRESH_TOKEN_VALIDITY;
+
     public String getUsernameFromToken(String token){
         return getClaimFromToken(token, Claims::getSubject);
     }
@@ -43,6 +46,16 @@ public class JwtUtil {
         final String username = getUsernameFromToken(token);
 
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public boolean validateRefreshToken( String token){
+        try{
+            Claims claims = getAllClaimsFromToken(token);
+            boolean isRefresh = "refresh".equals(claims.get("type"));
+            return isRefresh && !isTokenExpired(token);
+        }catch(Exception e){
+            return false;
+        }
     }
 
     public boolean isTokenExpired(String token){
@@ -64,6 +77,17 @@ public class JwtUtil {
                 .setExpiration(new Date(System.currentTimeMillis()+ TOKEN_VALIDITY))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
+    }
+
+    public String generateRefreshToken (UserDetails userDetails){
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis()+ REFRESH_TOKEN_VALIDITY *100))
+                .claim("type", "refresh")
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                .compact();
+
     }
 
 }
