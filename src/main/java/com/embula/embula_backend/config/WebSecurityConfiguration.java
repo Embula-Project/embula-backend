@@ -46,7 +46,7 @@ public class WebSecurityConfiguration {
                                 "/swagger-ui.html",
                                 "/authentication"
                         ).permitAll()
-                        .requestMatchers("/api/v1/login/authentication", "/api/v1/user/register-user","/api/v1/fooditem/getAllFoodItems").permitAll() // public endpoints
+                        .requestMatchers("/api/v1/login/authentication", "/api/v1/login/logout", "/api/v1/login/refresh-token", "/api/v1/user/register-user","/api/v1/fooditem/getAllFoodItems","/api/v1/food-order/checkout","/api/v1/food-order/payment-success").permitAll() // public endpoints
                         .requestMatchers("OPTIONS", "/**").permitAll() // Allow preflight requests
                         .requestMatchers(HttpHeaders.ALLOW).permitAll()
                         .anyRequest().authenticated()  // all other endpoints require auth

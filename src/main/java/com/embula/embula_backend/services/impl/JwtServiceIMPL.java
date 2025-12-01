@@ -152,13 +152,23 @@ public class JwtServiceIMPL implements JwtService {
 
     //Validate the Refresh Token
     public LoginResponse refreshAccessToken(String refreshToken) throws Exception{
-        if(!jwtUtil.validateRefreshToken(refreshToken) || refreshToken==null){
+        if(refreshToken == null || !jwtUtil.validateRefreshToken(refreshToken)){
             throw new Exception("Invalid Refresh Token");
         }
-        String username = jwtUtil.getUsernameFromToken(refreshToken);
-        User user = userRepo.findById(username).orElseThrow();
 
-        UserDetails userDetails = loadUserByUsername(username);
+        // Extract username from refresh token - NO DATABASE CALL
+        String username = jwtUtil.getUsernameFromToken(refreshToken);
+
+        // Create minimal UserDetails for token generation
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                username,
+                "", // Password not needed for token generation
+                Collections.emptyList()
+        );
+
+        // Note: Refresh token only contains email, not firstName/lastName/role
+        // We need to fetch user data once to create new access token with full claims
+        User user = userRepo.findById(username).orElseThrow(() -> new Exception("User not found"));
 
         String newAccessToken = jwtUtil.generateToken(
                 userDetails,
@@ -166,6 +176,8 @@ public class JwtServiceIMPL implements JwtService {
                 user.getLastName(),
                 user.getRole()
         );
+
+        // Return same refresh token (it's still valid)
         return new LoginResponse(user, newAccessToken, refreshToken);
     }
 }
