@@ -1,5 +1,6 @@
 package com.embula.embula_backend.entity;
 
+import com.embula.embula_backend.entity.enums.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,8 +19,9 @@ public class Payment {
     @Column(name = "payment_id", length = 45)
     private String paymentId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", length = 50)
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
 
     @Column(name = "payment_amount")
     private double paymentAmount;
@@ -30,7 +32,6 @@ public class Payment {
     @Column(name="stripe_payment_intent_id", length = 100)
     private String stripePaymentIntentId;
 
-    @ManyToOne
-    @JoinColumn(name="customer_id", nullable = false)
-    private Customer customer;
+    @Column(name="customer_id", nullable = false)
+    private String customer;
 }

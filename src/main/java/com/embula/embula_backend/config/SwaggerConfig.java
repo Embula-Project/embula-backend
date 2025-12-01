@@ -17,4 +17,6 @@ public class SwaggerConfig {
                         .description("API documentation for the Embula Spring Boot backend"));
     }
 
+
+
 }

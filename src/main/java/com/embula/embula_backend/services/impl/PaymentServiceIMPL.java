@@ -21,9 +21,19 @@ public class PaymentServiceIMPL implements PaymentService {
 
     @Override
     public String savePayment (PaymentDTO paymentDTO){
+        // Generate payment ID if not provided
+        if (paymentDTO.getPaymentId() == null || paymentDTO.getPaymentId().isEmpty()) {
+            paymentDTO.setPaymentId(generatePaymentId());
+        }
+
         Payment payment = paymentMappers.savePayments(paymentDTO);
         paymentRepository.save(payment);
         return paymentDTO.getPaymentId() + " Saved Successfully";
+    }
+
+    private String generatePaymentId() {
+        long count = paymentRepository.countAllPayments();
+        return String.format("P-%03d", count + 1);
     }
 
 }

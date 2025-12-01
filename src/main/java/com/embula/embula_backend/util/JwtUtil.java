@@ -33,6 +33,21 @@ public class JwtUtil {
         return getClaimFromToken(token, Claims::getSubject);
     }
 
+    public String getFirstNameFromToken(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        return claims.get("firstName", String.class);
+    }
+
+    public String getLastNameFromToken(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        return claims.get("lastName", String.class);
+    }
+
+    public String getRoleFromToken(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        return claims.get("role", String.class);
+    }
+
     public <T> T getClaimFromToken(String token, Function<Claims,T> claimsResolver){
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);

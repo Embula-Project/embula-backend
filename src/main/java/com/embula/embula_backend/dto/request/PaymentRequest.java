@@ -12,5 +12,6 @@ public class PaymentRequest {
     private Long quantity;
     private String orderName;
     private String currency;
+    private String customerId;
 
 }

@@ -1,13 +1,15 @@
 package com.embula.embula_backend.services.impl;
 
+import com.embula.embula_backend.dto.PaymentDTO;
 import com.embula.embula_backend.dto.request.PaymentRequest;
 import com.embula.embula_backend.dto.response.PaymentResponse;
+import com.embula.embula_backend.services.PaymentService;
 import com.embula.embula_backend.services.StripeService;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
-import com.stripe.net.StripeResponse;
 import com.stripe.param.checkout.SessionCreateParams;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,9 @@ public class StripeServiceIMPL implements StripeService {
     @Value("${stripe.secretKey}")
     private String secretKey;
 
+    @Autowired
+    private PaymentService paymentService;
+
     @Override
     public PaymentResponse checkoutProduct(PaymentRequest paymentRequest){
         Stripe.apiKey = secretKey;
@@ -25,7 +30,7 @@ public class StripeServiceIMPL implements StripeService {
 
         SessionCreateParams.LineItem.PriceData priceData = SessionCreateParams.LineItem.PriceData.builder()
                 .setCurrency(paymentRequest.getCurrency() == null ? "LKR" : paymentRequest.getCurrency())
-                .setUnitAmount(paymentRequest.getAmount())
+                .setUnitAmount(paymentRequest.getAmount()*100)
                 .setProductData(productData)
                 .build();
 
@@ -36,23 +41,63 @@ public class StripeServiceIMPL implements StripeService {
 
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("http://localhost:8080/success")
-                .setCancelUrl("http://localhost:8080/cancel")
+                .setSuccessUrl("http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}")
+                .setCancelUrl("http://localhost:3000/cancel")
                 .addLineItem(lineItem)
+                .putMetadata("customerId", paymentRequest.getCustomerId()) // Store customerId in session metadata
                 .build();
-        Session session =null;
+        Session session = null;
 
         try{
             session = Session.create(params);
+            // DO NOT save payment here - payment hasn't been completed yet!
+            // Payment should be saved via Stripe webhook after successful payment
         }catch(StripeException e){
             System.out.println(e.getMessage());
         }
-        return PaymentResponse
-                .builder()
-                .status("200")
-                .message("Payment Session created successfully")
-                .sessionId(session.getId())
-                .sessionUrl(session.getUrl())
-                .build();
+
+        if (session != null) {
+            return PaymentResponse
+                    .builder()
+                    .status("200")
+                    .message("Payment Session created successfully")
+                    .sessionId(session.getId())
+                    .sessionUrl(session.getUrl())
+                    .build();
+        } else {
+            return PaymentResponse
+                    .builder()
+                    .status("500")
+                    .message("Failed to create payment session")
+                    .build();
+        }
+    }
+
+    @Override
+    public String handlePaymentSuccess(String sessionId) {
+        Stripe.apiKey = secretKey;
+
+        try {
+            // Retrieve the session from Stripe to verify it was successful
+            Session session = Session.retrieve(sessionId);
+
+            // Check if payment was successful
+            if ("paid".equals(session.getPaymentStatus())) {
+                // Save payment to database
+                PaymentDTO paymentDTO = new PaymentDTO();
+                paymentDTO.setPaymentMethod("CARD");
+                paymentDTO.setPaymentAmount(session.getAmountTotal() / 100.0); // Convert from cents
+                paymentDTO.setStripePaymentIntentId(session.getPaymentIntent());
+                paymentDTO.setCustomerId(session.getMetadata().get("customerId"));
+
+                String result = paymentService.savePayment(paymentDTO);
+                return result;
+            } else {
+                throw new RuntimeException("Payment was not successful. Status: " + session.getPaymentStatus());
+            }
+
+        } catch (StripeException e) {
+            throw new RuntimeException("Failed to retrieve session from Stripe: " + e.getMessage());
+        }
     }
 }

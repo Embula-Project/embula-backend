@@ -7,10 +7,7 @@ import com.embula.embula_backend.util.StandardResponse;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/food-order")
@@ -30,5 +27,21 @@ public class CheckoutController {
                 HttpStatus.CREATED
         );
         return responseEntity;
+    }
+
+    @GetMapping("/payment-success")
+    public ResponseEntity<StandardResponse> paymentSuccess(@RequestParam("session_id") String sessionId) {
+        try {
+            String message = stripeService.handlePaymentSuccess(sessionId);
+            return new ResponseEntity<>(
+                    new StandardResponse(200, "Success", message),
+                    HttpStatus.OK
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    new StandardResponse(500, "Error", e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
     }
 }
