@@ -32,6 +32,7 @@ public class Payment {
     @Column(name="stripe_payment_intent_id", length = 100)
     private String stripePaymentIntentId;
 
-    @Column(name="customer_id", nullable = false)
-    private String customer;
+    @ManyToOne
+    @JoinColumn (name="customer_id", nullable = false)
+    private Customer customer;
 }

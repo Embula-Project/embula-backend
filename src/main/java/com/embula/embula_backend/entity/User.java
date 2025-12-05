@@ -1,6 +1,5 @@
 package com.embula.embula_backend.entity;
 
-
 import com.embula.embula_backend.entity.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

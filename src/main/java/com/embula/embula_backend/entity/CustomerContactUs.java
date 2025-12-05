@@ -25,6 +25,7 @@ public class CustomerContactUs {
     @Column(name = "phone", length = 20)
     private String phone;
 
-    @Column(name = "customer_id", length = 45)
-    private String customerId;
+    @ManyToOne
+    @JoinColumn (name = "customer_id", nullable=false)
+    private Customer customer;
 }

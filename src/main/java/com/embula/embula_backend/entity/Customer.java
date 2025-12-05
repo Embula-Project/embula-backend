@@ -45,7 +45,13 @@ public class Customer {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "customers")
+    @OneToMany(mappedBy = "customer")
     private Set<Order> orders;
+
+    @OneToMany(mappedBy = "customer")
+    private Set<Payment> payments;
+
+    @OneToMany(mappedBy="customer")
+    private Set<CustomerContactUs> customerContactUs;
 
 }
