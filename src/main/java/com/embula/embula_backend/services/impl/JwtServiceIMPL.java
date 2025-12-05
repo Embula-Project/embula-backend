@@ -91,13 +91,11 @@ public class JwtServiceIMPL implements JwtService {
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepo.findById(username).get();
-
         if(user!=null){
             return new org.springframework.security.core.userdetails.User(
                     user.getEmail(),//get the username
                     user.getPassword(),
                     Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole()))//get the password to compare -> this is getting from the database
-
             );
         }else{
             throw new UsernameNotFoundException("User Not Found with the given Username");
@@ -138,7 +136,8 @@ public class JwtServiceIMPL implements JwtService {
                 userDetails,
                 user.getFirstName(),
                 user.getLastName(),
-                user.getRole()
+                user.getRole(),
+                user.getId()
         );
         String refreshToken = jwtUtil.generateRefreshToken(userDetails);
         LoginResponse loginResponse = new LoginResponse(
@@ -174,7 +173,8 @@ public class JwtServiceIMPL implements JwtService {
                 userDetails,
                 user.getFirstName(),
                 user.getLastName(),
-                user.getRole()
+                user.getRole(),
+                user.getId()
         );
 
         // Return same refresh token (it's still valid)
