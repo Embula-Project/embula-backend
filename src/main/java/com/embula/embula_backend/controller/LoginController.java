@@ -155,11 +155,11 @@ public class LoginController {
                         .body(new StandardResponse(401, "Access token not found", null));
             }
 
-            // Extract user info directly from token - NO DATABASE CALL
             String email = jwtUtil.getUsernameFromToken(jwtToken);
             String firstName = jwtUtil.getFirstNameFromToken(jwtToken);
             String lastName = jwtUtil.getLastNameFromToken(jwtToken);
             String roleString = jwtUtil.getRoleFromToken(jwtToken);
+            Long userId= jwtUtil.getUserIdFromToken(jwtToken);
             UserRole role = UserRole.valueOf(roleString);
 
             // Create user object from token data
@@ -168,6 +168,7 @@ public class LoginController {
             user.setFirstName(firstName);
             user.setLastName(lastName);
             user.setRole(role);
+            user.setId(userId);
             // Password is null - we don't store it in token
 
             return ResponseEntity.ok(new StandardResponse(200, "User retrieved successfully", user));
@@ -182,7 +183,7 @@ public class LoginController {
     @Operation(summary = "Logout", description = "Clears authentication cookies (access token and refresh token)")
     @ApiResponse(responseCode = "200", description = "Logout successful")
     public ResponseEntity<?> logout(HttpServletResponse response) {
-        // Clear access token cookie
+        // Clear access token cookie from the browser
         Cookie accessTokenCookie = new Cookie("accessToken", null);
         accessTokenCookie.setHttpOnly(true);
         accessTokenCookie.setSecure(false); // Set to true in production with HTTPS
@@ -190,7 +191,7 @@ public class LoginController {
         accessTokenCookie.setMaxAge(0);
         response.addCookie(accessTokenCookie);
 
-        // Clear refresh token cookie
+        // Clear refresh token cookie from the browser
         Cookie refreshTokenCookie = new Cookie("refreshToken", null);
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setSecure(false); // Set to true in production with HTTPS

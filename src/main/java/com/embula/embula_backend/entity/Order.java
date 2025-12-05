@@ -50,15 +50,13 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name="customer_id", nullable=false)
-    private Customer customers;
+    private Customer customer;
 
     @OneToMany(mappedBy = "orders")
     private Set<OrderFoodItem> orderFoodItem;
 
-
-
     public Order(Customer customers, String orderName , String orderDescription, LocalDate orderDate, LocalTime orderTime,OrderStatus orderStatus,LocalDateTime orderCreatedDate, OrderType orderType){
-           this.customers = customers;
+           this.customer = customers;
            this.orderName = orderName;
            this.orderDescription = orderDescription;
            this.orderDate=orderDate;

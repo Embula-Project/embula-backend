@@ -7,6 +7,7 @@ import com.embula.embula_backend.util.StandardResponse;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,6 +21,7 @@ public class CheckoutController {
     }
 
     @PostMapping("/checkout")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<StandardResponse> checkoutProduct(@RequestBody PaymentRequest paymentRequest) {
         PaymentResponse paymentResponse = stripeService.checkoutProduct(paymentRequest);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
@@ -30,6 +32,7 @@ public class CheckoutController {
     }
 
     @GetMapping("/payment-success")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<StandardResponse> paymentSuccess(@RequestParam("session_id") String sessionId) {
         try {
             String message = stripeService.handlePaymentSuccess(sessionId);
