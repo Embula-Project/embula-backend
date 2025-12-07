@@ -24,7 +24,7 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @PostMapping(path="savePayment")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<StandardResponse> savePayments (PaymentDTO paymentDTO) {
         String message = paymentService.savePayment(paymentDTO);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(

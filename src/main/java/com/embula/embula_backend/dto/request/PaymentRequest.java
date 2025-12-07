@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,5 +15,8 @@ public class PaymentRequest {
     private String orderName;
     private String currency;
     private String customerId;
+    private String orderDescription;
+    private String orderType;
+    private List<OrderFoodItemRequest> orderFoodItems;
 
 }

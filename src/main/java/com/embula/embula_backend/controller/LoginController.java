@@ -67,7 +67,7 @@ public class LoginController {
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setSecure(false); // Set to true in production with HTTPS
         refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(REFRESH_TOKEN_VALIDITY / 1000); // Convert milliseconds to seconds
+        refreshTokenCookie.setMaxAge(REFRESH_TOKEN_VALIDITY / 1000); // Convert milliseconds to seconds and this already verify to expire the token by the browser
         response.addCookie(refreshTokenCookie);
 
         // Return only user data (without tokens)

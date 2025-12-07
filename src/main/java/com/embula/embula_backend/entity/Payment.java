@@ -32,7 +32,9 @@ public class Payment {
     @Column(name="stripe_payment_intent_id", length = 100)
     private String stripePaymentIntentId;
 
-    @ManyToOne
-    @JoinColumn (name="customer_id", nullable = false)
-    private Customer customer;
+    @OneToOne(mappedBy = "payment")
+    private Order order;
+
+
+
 }

@@ -48,9 +48,6 @@ public class Customer {
     @OneToMany(mappedBy = "customer")
     private Set<Order> orders;
 
-    @OneToMany(mappedBy = "customer")
-    private Set<Payment> payments;
-
     @OneToMany(mappedBy="customer")
     private Set<CustomerContactUs> customerContactUs;
 
