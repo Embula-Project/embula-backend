@@ -29,5 +29,6 @@ public class RequestOrderSaveDTO {
     private LocalDateTime orderCreatedDate;
     private OrderType orderType;
     private String customers;
+    private String paymentId;
     private List<RequestOrderFoodItemSaveDTO> orderFoodItem;
 }
