@@ -19,17 +19,6 @@ public class CustomerServiceIMPL implements CustomerService {
 
     @Override
     public String saveCustomer(CustomerDTO customerDTO){
-//        Customer customer = new Customer(
-//                customerDTO.getId(),
-//                customerDTO.getFirstName(),
-//                customerDTO.getLastName(),
-//                customerDTO.getEmail(),
-//                customerDTO.getStatus(),
-//                customerDTO.getAddress(),
-//                customerDTO.getPhone(),
-//                customerDTO.getImage(),
-//                customerDTO.getCreatedAt()
-//        );
         Customer customer = customerMappers.saveCustomer(customerDTO);
         customerRepository.save(customer);
         return "Save Successfull with Id"+ customerDTO.getId();

@@ -1,12 +1,14 @@
 package com.embula.embula_backend.services.impl;
 
 import com.embula.embula_backend.dto.PaymentDTO;
+import com.embula.embula_backend.dto.request.OrderFoodItemRequest;
 import com.embula.embula_backend.dto.request.PaymentRequest;
 import com.embula.embula_backend.dto.request.RequestOrderFoodItemSaveDTO;
 import com.embula.embula_backend.dto.request.RequestOrderSaveDTO;
 import com.embula.embula_backend.dto.response.PaymentResponse;
 import com.embula.embula_backend.entity.Payment;
 import com.embula.embula_backend.entity.enums.OrderType;
+import com.embula.embula_backend.services.EmailService;
 import com.embula.embula_backend.services.OrderService;
 import com.embula.embula_backend.services.PaymentService;
 import com.embula.embula_backend.services.StripeService;
@@ -37,6 +39,9 @@ public class StripeServiceIMPL implements StripeService {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private EmailService emailService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -63,6 +68,7 @@ public class StripeServiceIMPL implements StripeService {
                 .setCancelUrl("http://localhost:3000/cancel")
                 .addLineItem(lineItem)
                 .putMetadata("customerId", paymentRequest.getCustomerId())
+                .putMetadata("customerEmail", paymentRequest.getCustomerEmail())
                 .putMetadata("orderName", paymentRequest.getOrderName())
                 .putMetadata("orderDescription", paymentRequest.getOrderDescription() != null ? paymentRequest.getOrderDescription() : "")
                 .putMetadata("orderType", paymentRequest.getOrderType() != null ? paymentRequest.getOrderType() : "DINE_IN");
@@ -119,7 +125,6 @@ public class StripeServiceIMPL implements StripeService {
                 // Check if payment already exists (prevent duplicate processing)
                 Optional<Payment> existingPayment = paymentService.findByStripePaymentIntentId(stripePaymentIntentId);
                 if (existingPayment.isPresent()) {
-                    System.out.println("Payment already processed: " + existingPayment.get().getPaymentId());
                     return "Payment " + existingPayment.get().getPaymentId() + " was already processed successfully";
                 }
 
@@ -128,21 +133,15 @@ public class StripeServiceIMPL implements StripeService {
                 paymentDTO.setPaymentMethod("CARD");
                 paymentDTO.setPaymentAmount(session.getAmountTotal() / 100.0); // Convert from cents
                 paymentDTO.setStripePaymentIntentId(stripePaymentIntentId);
-
                 Payment savedPayment = paymentService.savePaymentAndReturn(paymentDTO);
-                System.out.println("Payment saved with ID: " + savedPayment.getPaymentId());
 
                 // 2. Create order with the payment ID
                 String customerId = session.getMetadata().get("customerId");
+                String customerEmail = session.getMetadata().get("customerEmail");
                 String orderName = session.getMetadata().get("orderName");
                 String orderDescription = session.getMetadata().get("orderDescription");
                 String orderType = session.getMetadata().get("orderType");
                 String orderFoodItemsJson = session.getMetadata().get("orderFoodItems");
-
-                System.out.println("Attempting to create order with customerId: " + customerId);
-                System.out.println("Order name: " + orderName);
-                System.out.println("Order type: " + orderType);
-                System.out.println("Order food items JSON: " + orderFoodItemsJson);
 
                 // Validate customerId
                 if (customerId == null || customerId.isEmpty()) {
@@ -166,13 +165,13 @@ public class StripeServiceIMPL implements StripeService {
                 orderSaveDTO.setPaymentId(savedPayment.getPaymentId());
 
                 // Parse order food items from JSON if available
+                List<OrderFoodItemRequest> foodItemRequests = new ArrayList<>();
                 if (orderFoodItemsJson != null && !orderFoodItemsJson.isEmpty()) {
                     try {
-                        List<PaymentRequest.OrderFoodItemRequest> foodItemRequests =
-                            objectMapper.readValue(orderFoodItemsJson, new TypeReference<List<PaymentRequest.OrderFoodItemRequest>>() {});
+                        foodItemRequests = objectMapper.readValue(orderFoodItemsJson, new TypeReference<List<OrderFoodItemRequest>>() {});
 
                         List<RequestOrderFoodItemSaveDTO> orderFoodItems = new ArrayList<>();
-                        for (PaymentRequest.OrderFoodItemRequest item : foodItemRequests) {
+                        for (OrderFoodItemRequest item : foodItemRequests) {
                             RequestOrderFoodItemSaveDTO foodItemDTO = new RequestOrderFoodItemSaveDTO();
                             foodItemDTO.setItemName(item.getItemName());
                             foodItemDTO.setQty(item.getQty());
@@ -192,14 +191,21 @@ public class StripeServiceIMPL implements StripeService {
                 System.out.println("Now calling orderService.saveOrderWithPayment...");
                 try {
                     String orderResult = orderService.saveOrderWithPayment(orderSaveDTO, savedPayment);
-                    System.out.println("Order saved: " + orderResult);
+                    emailService.sendOrderConfirmationEmail(
+                        customerEmail,
+                        savedPayment.getPaymentId(),
+                        savedPayment.getPaymentAmount(),
+                        orderName,
+                        orderDescription,
+                        foodItemRequests
+                    );
+
                     return "Payment " + savedPayment.getPaymentId() + " processed successfully. " + orderResult;
                 } catch (Exception e) {
-                    System.err.println("ERROR: Failed to save order: " + e.getMessage());
                     e.printStackTrace();
-                    // Payment was saved, but order failed - log this critical error
                     throw new RuntimeException("Payment " + savedPayment.getPaymentId() + " saved but order creation failed: " + e.getMessage(), e);
                 }
+
             } else {
                 throw new RuntimeException("Payment was not successful. Status: " + session.getPaymentStatus());
             }
