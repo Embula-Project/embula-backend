@@ -18,7 +18,7 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
-    @PostMapping("/saveCustomer")
+    @PostMapping
     public ResponseEntity<StandardResponse> saveCustomer(@RequestBody CustomerDTO customerDTO){
         String message=customerService.saveCustomer(customerDTO);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(

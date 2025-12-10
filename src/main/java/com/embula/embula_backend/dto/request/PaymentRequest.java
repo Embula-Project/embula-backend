@@ -15,8 +15,8 @@ public class PaymentRequest {
     private String orderName;
     private String currency;
     private String customerId;
+    private String customerEmail;
     private String orderDescription;
     private String orderType;
     private List<OrderFoodItemRequest> orderFoodItems;
-
 }
