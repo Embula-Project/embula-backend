@@ -47,9 +47,9 @@ jobs:
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.7
       with:
-        host : ${{secret.EC2_HOST}}
-        username : ${{secret.EC2_USER}}
-        key: ${{secret.EC2_KEY}}
+        host : ${{secrets.EC2_HOST}}
+        username : ${{secrets.EC2_USER}}
+        key: ${{secrets.EC2_KEY}}
         script:
           docker pull dewmink/embula-backend:latest
           docker stop embula-backend || true
