@@ -50,22 +50,24 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name="customer_id", nullable=false)
-    private Customer customers;
+    private Customer customer;
 
     @OneToMany(mappedBy = "orders")
     private Set<OrderFoodItem> orderFoodItem;
 
+    @OneToOne
+    @JoinColumn(name="paymentId", nullable=false)
+    private Payment payment;
 
-
-    public Order(Customer customers, String orderName , String orderDescription, LocalDate orderDate, LocalTime orderTime,OrderStatus orderStatus,LocalDateTime orderCreatedDate, OrderType orderType){
-           this.customers = customers;
+    public Order(Customer customers, String orderName , String orderDescription, LocalDate orderDate, LocalTime orderTime,OrderStatus orderStatus,LocalDateTime orderCreatedDate, OrderType orderType) {
+           this.customer = customers;
            this.orderName = orderName;
            this.orderDescription = orderDescription;
            this.orderDate=orderDate;
            this.orderTime= orderTime;
-            this.orderStatus = orderStatus;
-            this.orderCreatedDate = orderCreatedDate;
-            this.orderType = orderType;
+           this.orderStatus = orderStatus;
+           this.orderCreatedDate = orderCreatedDate;
+           this.orderType = orderType;
     }
 
 }

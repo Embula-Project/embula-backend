@@ -11,6 +11,7 @@ import com.embula.embula_backend.dto.response.ViewOrderDTO;
 import com.embula.embula_backend.entity.FoodItem;
 import com.embula.embula_backend.entity.Order;
 import com.embula.embula_backend.entity.OrderFoodItem;
+import com.embula.embula_backend.entity.Payment;
 import com.embula.embula_backend.entity.enums.OrderStatus;
 import com.embula.embula_backend.entity.enums.OrderType;
 import com.embula.embula_backend.exception.NotFoundException;
@@ -81,6 +82,67 @@ public class OrderServiceIMPL implements OrderService {
             }
         }
         return "Successfully Saved";
+    }
+
+    @Override
+    public String saveOrderWithPayment(RequestOrderSaveDTO requestOrderSaveDTO, Payment payment) {
+        try {
+            System.out.println("=== Starting saveOrderWithPayment ===");
+            System.out.println("Customer ID: " + requestOrderSaveDTO.getCustomers());
+            System.out.println("Payment ID: " + payment.getPaymentId());
+
+            // Create order with payment reference
+            Order order = new Order();
+
+            // Fetch customer
+            System.out.println("Fetching customer with ID: " + requestOrderSaveDTO.getCustomers());
+            order.setCustomer(customerRepo.getById(requestOrderSaveDTO.getCustomers()));
+            System.out.println("Customer fetched successfully");
+
+            order.setOrderName(requestOrderSaveDTO.getOrderName());
+            order.setOrderDescription(requestOrderSaveDTO.getOrderDescription());
+            order.setOrderDate(LocalDate.now()); // Current date
+            order.setOrderTime(LocalTime.now()); // Current time
+            order.setOrderStatus(OrderStatus.Pending); // Default status for new order
+            order.setOrderCreatedDate(LocalDateTime.now()); // Current datetime
+            order.setOrderType(requestOrderSaveDTO.getOrderType());
+            order.setPayment(payment); // Link the payment
+
+            System.out.println("Saving order to database...");
+            orderRepository.save(order);
+            System.out.println("Order saved with ID: " + order.getOrderId());
+
+            // Save order food items if provided
+            if (requestOrderSaveDTO.getOrderFoodItem() != null && !requestOrderSaveDTO.getOrderFoodItem().isEmpty()) {
+                System.out.println("Saving " + requestOrderSaveDTO.getOrderFoodItem().size() + " order food items...");
+                List<OrderFoodItem> orderFoodItems = new ArrayList<>();
+                for (RequestOrderFoodItemSaveDTO foodItemDTO : requestOrderSaveDTO.getOrderFoodItem()) {
+                    OrderFoodItem orderFoodItem = new OrderFoodItem();
+                    orderFoodItem.setOrders(order);
+                    orderFoodItem.setItemName(foodItemDTO.getItemName());
+                    orderFoodItem.setQty(foodItemDTO.getQty());
+                    orderFoodItem.setAmount(foodItemDTO.getAmount());
+
+                    System.out.println("Fetching food item with ID: " + foodItemDTO.getFoodItems());
+                    orderFoodItem.setFoodItems(foodItemRepo.getById(foodItemDTO.getFoodItems()));
+                    orderFoodItems.add(orderFoodItem);
+                }
+                orderFoodItemRepo.saveAll(orderFoodItems);
+                System.out.println("Order food items saved successfully");
+            } else {
+                System.out.println("No order food items to save");
+            }
+
+            String result = "Order " + order.getOrderId() + " saved successfully with Payment " + payment.getPaymentId();
+            System.out.println("=== " + result + " ===");
+            return result;
+        } catch (Exception e) {
+            System.err.println("=== ERROR in saveOrderWithPayment ===");
+            System.err.println("Error message: " + e.getMessage());
+            System.err.println("Error class: " + e.getClass().getName());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to save order: " + e.getMessage(), e);
+        }
     }
 
     @Override

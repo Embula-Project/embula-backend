@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class OrderController {
 
     @PostMapping(path="saveOrder")
 //    @Secured({"ROLE_CUSTOMER", "ROLE_ADMIN"})
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<StandardResponse> saveOrder (@RequestBody RequestOrderSaveDTO requestOrderSaveDTO){
         String message = orderService.saveOrder(requestOrderSaveDTO);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
@@ -41,6 +43,7 @@ public class OrderController {
             params={"page","size"}
     )
 //    @Secured({"ROLE_CUSTOMER", "ROLE_ADMIN"})
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<StandardResponse> viewOrder(
             @RequestParam(value="page") int page,
             @RequestParam(value="size") int size
@@ -63,6 +66,7 @@ public class OrderController {
             params="orderId"
     )
 //    @Secured("ROLE_CUSTOMER")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<StandardResponse> cancelorder(@RequestParam String orderId){
         String message= orderService.cancelOrder(orderId);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
@@ -77,6 +81,7 @@ public class OrderController {
             path={"/status-customer-orders"},
             params = {"status","page", "size"}
     )
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<StandardResponse> statusCustomerOrders(
             @RequestParam(value="status") String status,
             @RequestParam(value="page") int page,

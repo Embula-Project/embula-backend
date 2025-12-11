@@ -19,7 +19,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 
 @Configuration
 @EnableWebSecurity
-// @EnableGlobalMethodSecurity(prePostEnabled = true) // Temporarily disable method security
+@EnableGlobalMethodSecurity(prePostEnabled = true) // Enable method security for @PreAuthorize
 public class WebSecurityConfiguration {
 
     @Autowired
@@ -46,7 +46,7 @@ public class WebSecurityConfiguration {
                                 "/swagger-ui.html",
                                 "/authentication"
                         ).permitAll()
-                        .requestMatchers("/api/v1/login/authentication", "/api/v1/user/register-user","/api/v1/fooditem/getAllFoodItems").permitAll() // public endpoints
+                        .requestMatchers("/api/v1/login/authentication", "/api/v1/login/logout", "/api/v1/login/refresh-token", "/api/v1/user/register-user","/api/v1/fooditem/getAllFoodItems").permitAll() // public endpoints
                         .requestMatchers("OPTIONS", "/**").permitAll() // Allow preflight requests
                         .requestMatchers(HttpHeaders.ALLOW).permitAll()
                         .anyRequest().authenticated()  // all other endpoints require auth

@@ -6,4 +6,6 @@ import com.embula.embula_backend.dto.response.PaymentResponse;
 public interface StripeService {
 
     public PaymentResponse checkoutProduct(PaymentRequest paymentRequest);
+
+    public String handlePaymentSuccess(String sessionId);
 }

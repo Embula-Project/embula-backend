@@ -9,6 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class FoodItemToMenuDTO {
+    private String itemId;
     private String itemName;
     private List<String> ingredients;
     private String type;
