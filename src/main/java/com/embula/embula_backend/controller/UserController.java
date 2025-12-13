@@ -1,9 +1,11 @@
 package com.embula.embula_backend.controller;
 
+import com.embula.embula_backend.dto.AdminDTO;
 import com.embula.embula_backend.dto.CustomerDTO;
 import com.embula.embula_backend.dto.UserDTO;
 import com.embula.embula_backend.entity.User;
 import com.embula.embula_backend.repository.UserRepository;
+import com.embula.embula_backend.services.AdminService;
 import com.embula.embula_backend.services.CustomerService;
 import com.embula.embula_backend.util.StandardResponse;
 import com.embula.embula_backend.util.mappers.UserMappers;
@@ -31,6 +33,9 @@ public class UserController {
 
     @Autowired
     private CustomerService customerService;
+
+    @Autowired
+    private AdminService adminService;
 
 
     @PostMapping("/register-user")
@@ -61,6 +66,17 @@ public class UserController {
                     customerService.saveCustomer(customerDTO);
                 }
 
+                // If the user role is ADMIN, also create an admin record
+                if(userDTO.getRole() != null && userDTO.getRole().equalsIgnoreCase("ADMIN")) {
+                    AdminDTO adminDTO = new AdminDTO();
+                    adminDTO.setId(String.valueOf(savedUser.getId())); // Same ID as User
+                    adminDTO.setAdminName(userDTO.getAdminName());
+                    adminDTO.setAdminNumber(userDTO.getAdminNumber());
+
+                    // Save admin
+                    adminService.saveAdmin(adminDTO);
+                }
+
                 responseEntity= new ResponseEntity<>(
                         new StandardResponse(200,"Created", savedUser ),
                         HttpStatus.CREATED
@@ -88,5 +104,6 @@ public class UserController {
     public String forAdmins(){
         return "This is Only for Admin";
     }
+
 
 }
