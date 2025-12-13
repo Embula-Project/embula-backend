@@ -5,6 +5,7 @@ import com.embula.embula_backend.dto.request.FoodItemUpdateDTO;
 import com.embula.embula_backend.dto.response.FoodItemToMenuDTO;
 import com.embula.embula_backend.dto.response.ViewFoodItemDTO;
 import com.embula.embula_backend.entity.FoodItem;
+import com.embula.embula_backend.entity.enums.FoodItemType;
 import com.embula.embula_backend.exception.NotFoundException;
 import com.embula.embula_backend.repository.FoodItemRepository;
 import com.embula.embula_backend.services.FoodItemService;
