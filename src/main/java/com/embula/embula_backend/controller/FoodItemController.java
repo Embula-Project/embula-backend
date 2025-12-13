@@ -6,6 +6,7 @@ import com.embula.embula_backend.dto.request.FoodItemUpdateDTO;
 import com.embula.embula_backend.dto.response.FoodItemToMenuDTO;
 import com.embula.embula_backend.dto.response.ViewFoodItemDTO;
 import com.embula.embula_backend.entity.FoodItem;
+import com.embula.embula_backend.exception.NotFoundException;
 import com.embula.embula_backend.services.FoodItemService;
 import com.embula.embula_backend.util.StandardResponse;
 import org.apache.coyote.Response;
@@ -28,11 +29,9 @@ public class FoodItemController {
     @Autowired
     private FoodItemService foodItemService;
     private HandlerMapping resourceHandlerMapping;
-
-
     ResponseEntity<StandardResponse> responseEntity;
 
-    @PostMapping(path="saveItem" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<StandardResponse> saveFoodItem (@RequestPart FoodItemDTO foodItemDTO,
                                                           @RequestPart MultipartFile imageFile
@@ -95,6 +94,43 @@ public class FoodItemController {
         ViewFoodItemDTO viewFoodItemDTO = foodItemService.viewFoodItem(itemId);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
                 new StandardResponse(200,"Success", viewFoodItemDTO),
+                HttpStatus.OK
+        );
+        return responseEntity;
+    }
+
+    @PutMapping(value = "/{itemId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<StandardResponse> updateFoodItem(
+            @PathVariable long itemId,
+            @RequestPart(required = false) FoodItemUpdateDTO foodItemUpdateDTO,
+            @RequestPart(required = false) MultipartFile imageFile
+    ) {
+        try {
+            String message = foodItemService.updateFoodItem(itemId, foodItemUpdateDTO, imageFile);
+            return new ResponseEntity<>(
+                    new StandardResponse(200, "Success", message),
+                    HttpStatus.OK
+            );
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(
+                    new StandardResponse(404, "Not Found", e.getMessage()),
+                    HttpStatus.NOT_FOUND
+            );
+        } catch (Exception e) {
+            return new ResponseEntity<>(
+                    new StandardResponse(500, "Error", e.getMessage()),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    @DeleteMapping("/{itemId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<StandardResponse> deleteFoodItem(@PathVariable long itemId){
+        String message = foodItemService.deleteFoodItem(itemId);
+        ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
+                new StandardResponse(200,"Success", message),
                 HttpStatus.OK
         );
         return responseEntity;

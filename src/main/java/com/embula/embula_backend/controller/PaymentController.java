@@ -2,6 +2,7 @@ package com.embula.embula_backend.controller;
 
 
 import com.embula.embula_backend.dto.PaymentDTO;
+import com.embula.embula_backend.dto.request.AllPaymentDTO;
 import com.embula.embula_backend.services.PaymentService;
 import com.embula.embula_backend.util.StandardResponse;
 import org.apache.coyote.Response;
@@ -10,10 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -34,4 +34,14 @@ public class PaymentController {
         return responseEntity;
     }
 
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<StandardResponse> getAllPayments(){
+        List<AllPaymentDTO> allPaymentDTO = paymentService.getAllPayments();
+        ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
+                new StandardResponse(200,"Success", allPaymentDTO),
+                HttpStatus.OK
+        );
+        return responseEntity;
+    }
 }

@@ -5,6 +5,7 @@ import com.embula.embula_backend.dto.paginated.PaginatedAllOrders;
 import com.embula.embula_backend.dto.paginated.PaginatedStatusCustomerOrders;
 import com.embula.embula_backend.dto.request.RequestOrderSaveDTO;
 import com.embula.embula_backend.dto.response.ViewOrderDTO;
+import com.embula.embula_backend.entity.enums.OrderStatus;
 import com.embula.embula_backend.services.OrderService;
 import com.embula.embula_backend.util.StandardResponse;
 import org.apache.coyote.Response;
@@ -38,17 +39,12 @@ public class OrderController {
     }
 
 
-    @GetMapping(
-            path="viewAllOrders",
-            params={"page","size"}
-    )
+    @GetMapping(params={"page","size"})
 //    @Secured({"ROLE_CUSTOMER", "ROLE_ADMIN"})
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<StandardResponse> viewOrder(
             @RequestParam(value="page") int page,
             @RequestParam(value="size") int size
-
-
     ){
        // List<ViewOrderDTO> viewOrderDTO = orderService.viewAllOrders();
         PaginatedAllOrders paginatedAllOrders = orderService.viewAllOrders(page,size);
@@ -61,14 +57,11 @@ public class OrderController {
     }
 
 
-    @PutMapping(
-            path="cancelOrder",
-            params="orderId"
-    )
+    @PutMapping(params={"orderId","orderStatus"})
 //    @Secured("ROLE_CUSTOMER")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<StandardResponse> cancelorder(@RequestParam String orderId){
-        String message= orderService.cancelOrder(orderId);
+    public ResponseEntity<StandardResponse> updateOrderStatus(@RequestParam Long orderId, @RequestParam OrderStatus orderStatus){
+        String message= orderService.updateOrderStatus(orderId, orderStatus);
         ResponseEntity<StandardResponse> responseEntity = new ResponseEntity<>(
                 new StandardResponse(200,"Success", message),
                 HttpStatus.OK

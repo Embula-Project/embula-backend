@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @Table(name="user")
 public class User {
 
-
     @Column(name="user_id")
     private Long id;
 

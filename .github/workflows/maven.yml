@@ -1,11 +1,3 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 name: Java CI for Embula with Maven
 
 on:
@@ -16,57 +8,54 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: maven
-    - name: Build with Maven
-      run: mvn clean install
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
 
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build with Maven
+        run: mvn clean install
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build & push Docker image
-      uses: docker/build-push-action@v6
-      with:
-        context: .
-        file: ./Dockerfile
-        push: true
-        tags: docker.io/dewmink/embula-backend:latest
+      - name: Build & push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: docker.io/dewmink/embula-backend:latest
 
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@v0.1.7
-      with:
-        host : ${{secrets.EC2_HOST}}
-        username : ${{secrets.EC2_USER}}
-        key: ${{secrets.EC2_KEY}}
-        script:
-          docker pull dewmink/embula-backend:latest
-          docker stop embula-backend || true
-          docker rm embula-backend || true
-          docker run -d \
-          --name embula-backend \
-          -p 8081:8081 \
-          -e MYSQL_URL=${{ secrets.MYSQL_URL }} \
-          -e Username=${{ secrets.DB_USERNAME }} \
-          -e Password=${{ secrets.DB_PASSWORD }} \
-          -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-          -e TOKEN_VALIDITY=${{ secrets.TOKEN_VALIDITY }} \
-          -e REFRESH_TOKEN_VALIDITY=${{ secrets.REFRESH_TOKEN_VALIDITY }} \
-          -e STRIPE_SECRET=${{ secrets.STRIPE_SECRET }} \
-          -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} \
-          -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
-          -e ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }} \
-          dewmink/embula-backend:latest
-
-
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            docker pull dewmink/embula-backend:latest
+            docker stop embula-backend || true
+            docker rm embula-backend || true
+            docker run -d \
+              --name embula-backend \
+              -p 8081:8081 \
+              -e MYSQL_URL=${{ secrets.MYSQL_URL }} \
+              -e Username=${{ secrets.DB_USERNAME }} \
+              -e Password=${{ secrets.DB_PASSWORD }} \
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              -e TOKEN_VALIDITY=${{ secrets.TOKEN_VALIDITY }} \
+              -e REFRESH_TOKEN_VALIDITY=${{ secrets.REFRESH_TOKEN_VALIDITY }} \
+              -e STRIPE_SECRET=${{ secrets.STRIPE_SECRET }} \
+              -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} \
+              -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
+              -e ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }} \
+              dewmink/embula-backend:latest
