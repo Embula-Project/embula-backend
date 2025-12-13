@@ -58,8 +58,8 @@ jobs:
             docker run -d --name embula-backend -p 8081:8081 -e MYSQL_URL="$MYSQL_URL" -e MYSQL_USERNAME="$MYSQL_USERNAME" -e MYSQL_PASSWORD="$MYSQL_PASSWORD" -e JWT_SECRET="$JWT_SECRET" -e TOKEN_VALIDITY="$TOKEN_VALIDITY" -e REFRESH_TOKEN_VALIDITY="$REFRESH_TOKEN_VALIDITY" -e STRIPE_SECRET="$STRIPE_SECRET" -e EMAIL_USERNAME="$EMAIL_USERNAME" -e EMAIL_PASSWORD="$EMAIL_PASSWORD" -e ADMIN_EMAIL="$ADMIN_EMAIL" dewmink/embula-backend:latest
         env:
           MYSQL_URL: ${{ secrets.MYSQL_URL }}
-          MYSQL_USERNAME: ${{ secrets.DB_USERNAME }}
-          MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_USERNAME: ${{ secrets.MYSQL_USERNAME }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           TOKEN_VALIDITY: ${{ secrets.TOKEN_VALIDITY }}
           REFRESH_TOKEN_VALIDITY: ${{ secrets.REFRESH_TOKEN_VALIDITY }}
