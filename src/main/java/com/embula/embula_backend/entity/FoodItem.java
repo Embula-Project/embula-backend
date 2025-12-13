@@ -1,5 +1,7 @@
 package com.embula.embula_backend.entity;
 
+import com.embula.embula_backend.entity.enums.FoodItemType;
+import com.embula.embula_backend.entity.enums.FoodPortionSize;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,8 +30,9 @@ public class FoodItem {
     @Column(name = "ingredient", length = 100)
     private List<String> ingredients;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", length = 50)
-    private String type;
+    private FoodItemType type;
 
     @Column(name = "description", length = 500)
     private String description;
@@ -37,8 +40,9 @@ public class FoodItem {
     @Column(name = "price")
     private double price;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "portion_size", length = 50)
-    private String portionSize;
+    private FoodPortionSize portionSize;
 
     @Column(name = "image_name", length = 100)
     private String imageName;

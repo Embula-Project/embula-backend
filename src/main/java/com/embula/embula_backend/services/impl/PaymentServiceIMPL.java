@@ -1,6 +1,7 @@
 package com.embula.embula_backend.services.impl;
 
 import com.embula.embula_backend.dto.PaymentDTO;
+import com.embula.embula_backend.dto.request.AllPaymentDTO;
 import com.embula.embula_backend.entity.Payment;
 import com.embula.embula_backend.entity.enums.PaymentMethod;
 import com.embula.embula_backend.repository.PaymentRepository;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,9 +20,10 @@ public class PaymentServiceIMPL implements PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
 
-
     @Autowired
     private PaymentMappers paymentMappers;
+    @Autowired
+    private PaymentService paymentService;
 
 
     @Override
@@ -60,6 +63,13 @@ public class PaymentServiceIMPL implements PaymentService {
     private String generatePaymentId() {
         long count = paymentRepository.countAllPayments();
         return String.format("P-%03d", count + 1);
+    }
+
+    @Override
+    public List<AllPaymentDTO> getAllPayments(){
+        List<Payment> payment = paymentRepository.findAll();
+        List<AllPaymentDTO> allPaymentDTO = paymentMappers.paymentToAllPaymentDTO(payment);
+        return allPaymentDTO;
     }
 
 }

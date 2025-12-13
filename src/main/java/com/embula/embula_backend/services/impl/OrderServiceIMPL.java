@@ -15,10 +15,7 @@ import com.embula.embula_backend.entity.Payment;
 import com.embula.embula_backend.entity.enums.OrderStatus;
 import com.embula.embula_backend.entity.enums.OrderType;
 import com.embula.embula_backend.exception.NotFoundException;
-import com.embula.embula_backend.repository.CustomerRepository;
-import com.embula.embula_backend.repository.FoodItemRepository;
-import com.embula.embula_backend.repository.OrderFoodItemRepository;
-import com.embula.embula_backend.repository.OrderRepository;
+import com.embula.embula_backend.repository.*;
 import com.embula.embula_backend.services.OrderService;
 import com.embula.embula_backend.util.mappers.OrderMappers;
 import jakarta.transaction.Transactional;
@@ -57,6 +54,9 @@ public class OrderServiceIMPL implements OrderService {
     @Autowired
     private OrderFoodItemRepository orderFoodItemRepo;
 
+    @Autowired
+    private PaymentRepository paymentRepository;
+
     @Override
     public String saveOrder(RequestOrderSaveDTO requestOrderSaveDTO){
         Order order= new Order(
@@ -71,7 +71,7 @@ public class OrderServiceIMPL implements OrderService {
         );
         orderRepository.save(order);
 
-        if(orderRepository.existsById(String.valueOf(order.getOrderId()))){
+        if(orderRepository.existsById(order.getOrderId())){
             List<OrderFoodItem> orderFoodItem= modelMapper.map(requestOrderSaveDTO.getOrderFoodItem(),new TypeToken<List<OrderFoodItem>>(){}.getType());
             for(int i=0;i<orderFoodItem.size();i++){
                 orderFoodItem.get(i).setOrders(order);
@@ -151,7 +151,7 @@ public class OrderServiceIMPL implements OrderService {
         long count = order.getTotalElements();
         if(!order.isEmpty()){
             PaginatedAllOrders paginatedAllOrders = new PaginatedAllOrders(
-                    orderMappers.OrderToViewOrderDTO(order),count
+                    orderMappers.OrderToViewOrderDTO(order.getContent()),count
             );
             return paginatedAllOrders;
         }else{
@@ -160,17 +160,15 @@ public class OrderServiceIMPL implements OrderService {
     }
 
     @Override
-    public String cancelOrder(String orderId){
+    public String updateOrderStatus(Long orderId, OrderStatus orderStatus){
         if(orderRepository.existsById(orderId)){
             Order order= orderRepository.findById(orderId).get();
-            order.setOrderStatus(OrderStatus.Cancelled);
+            order.setOrderStatus(orderStatus);
             orderRepository.save(order);
-            return order.getOrderId()+ " Order Successfully cancelled";
+            return order.getOrderId()+ " Order Successfully Updated";
         }else{
             throw new NotFoundException("No Order Found");
         }
-
-
     }
 
     @Override

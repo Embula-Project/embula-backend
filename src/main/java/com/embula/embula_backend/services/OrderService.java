@@ -6,6 +6,7 @@ import com.embula.embula_backend.dto.paginated.PaginatedStatusCustomerOrders;
 import com.embula.embula_backend.dto.request.RequestOrderSaveDTO;
 import com.embula.embula_backend.dto.response.ViewOrderDTO;
 import com.embula.embula_backend.entity.Payment;
+import com.embula.embula_backend.entity.enums.OrderStatus;
 
 import java.util.List;
 
@@ -16,6 +17,6 @@ public interface OrderService {
     public String saveOrderWithPayment(RequestOrderSaveDTO requestOrderSaveDTO, Payment payment);
 
     public PaginatedAllOrders viewAllOrders(int page, int size);
-    public String cancelOrder(String orderId);
+    public String updateOrderStatus(Long orderId, OrderStatus orderStatus);
     public PaginatedStatusCustomerOrders statusCustomerOrders(String status, int page , int size);
 }

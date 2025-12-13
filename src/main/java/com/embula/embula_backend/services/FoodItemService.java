@@ -15,7 +15,8 @@ public interface FoodItemService {
 
     public String saveFoodItem(FoodItemDTO foodItemDTO, MultipartFile imageFile) throws IOException;
     public List<FoodItemToMenuDTO> getAllFoodItems();
-    public String updateFoodItem(long ItemId, FoodItemUpdateDTO foodItemUpdateDTO);
+    public String updateFoodItem(long itemId, FoodItemUpdateDTO foodItemUpdateDTO, MultipartFile imageFile) throws IOException;
     public PaginatedAllFoodItems getAllFoodItemsPaginated (int page, int size);
     public ViewFoodItemDTO viewFoodItem(long itemId);
+    public String deleteFoodItem(Long itemId);
 }
