@@ -49,8 +49,8 @@ jobs:
               --name embula-backend \
               -p 8081:8081 \
               -e MYSQL_URL=${{ secrets.MYSQL_URL }} \
-              -e Username=${{ secrets.DB_USERNAME }} \
-              -e Password=${{ secrets.DB_PASSWORD }} \
+              -e MYSQL_USERNAME=${{ secrets.DB_USERNAME }} \
+              -e MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }} \
               -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
               -e TOKEN_VALIDITY=${{ secrets.TOKEN_VALIDITY }} \
               -e REFRESH_TOKEN_VALIDITY=${{ secrets.REFRESH_TOKEN_VALIDITY }} \
@@ -59,3 +59,4 @@ jobs:
               -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
               -e ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }} \
               dewmink/embula-backend:latest
+
