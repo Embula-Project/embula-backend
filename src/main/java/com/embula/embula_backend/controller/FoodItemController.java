@@ -103,8 +103,8 @@ public class FoodItemController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<StandardResponse> updateFoodItem(
             @PathVariable long itemId,
-            @RequestPart(required = false) FoodItemUpdateDTO foodItemUpdateDTO,
-            @RequestPart(required = false) MultipartFile imageFile
+            @RequestPart(value = "foodItemUpdateDTO", required = false) FoodItemUpdateDTO foodItemUpdateDTO,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile
     ) {
         try {
             String message = foodItemService.updateFoodItem(itemId, foodItemUpdateDTO, imageFile);

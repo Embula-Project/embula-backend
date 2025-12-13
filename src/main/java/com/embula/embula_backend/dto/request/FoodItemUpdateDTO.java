@@ -1,4 +1,7 @@
 package com.embula.embula_backend.dto.request;
+import com.embula.embula_backend.entity.enums.FoodItemType;
+import com.embula.embula_backend.entity.enums.FoodPortionSize;
+import com.embula.embula_backend.entity.enums.FoodItemType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,9 +13,10 @@ import java.util.List;
 public class FoodItemUpdateDTO {
     private String itemName;
     private List<String> ingredients;
-    private String type;
+    private FoodItemType type;
     private String description;
     private double price;
-    private String portionSize;
+    private FoodPortionSize portionSize;
     private byte[] image;
+
 }
