@@ -1,6 +1,5 @@
 package com.embula.embula_backend.controller;
 
-import com.embula.embula_backend.util.StandardResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

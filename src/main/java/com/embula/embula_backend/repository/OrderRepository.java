@@ -13,7 +13,7 @@ import java.util.List;
 
 @Repository
 @EnableJpaRepositories
-public interface OrderRepository extends JpaRepository<Order, String> {
+public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query(
             value = "SELECT c.first_name AS firstName, c.last_name AS lastName, c.phone AS phone, c.email AS email, " +

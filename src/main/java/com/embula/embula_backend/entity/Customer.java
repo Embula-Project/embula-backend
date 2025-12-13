@@ -1,5 +1,6 @@
 package com.embula.embula_backend.entity;
 
+import com.embula.embula_backend.entity.enums.CustomerStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,8 +30,9 @@ public class Customer {
     @Column(name = "email", length = 100)
     private String email;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
-    private String status;
+    private CustomerStatus status;
 
     @Column(name = "address", length = 255)
     private String address;

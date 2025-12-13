@@ -1,18 +1,14 @@
-package com.embula.embula_backend.dto;
+package com.embula.embula_backend.dto.response;
+
 import com.embula.embula_backend.entity.enums.CustomerStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
-public class CustomerDTO {
+public class ViewCustomerDTO {
     private String id;
     private String firstName;
     private String lastName;
@@ -20,8 +16,5 @@ public class CustomerDTO {
     private CustomerStatus status;
     private String address;
     private String phone;
-    private byte[] image;
-    private LocalDateTime createdAt;
-
-
 }
+

@@ -43,8 +43,14 @@ public class AppWideExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<StandardResponse> handleGlobalException(Exception ex, WebRequest request) {
+        // Log the actual exception for debugging
+        System.err.println("=== Global Exception Handler ===");
+        System.err.println("Exception Type: " + ex.getClass().getName());
+        System.err.println("Exception Message: " + ex.getMessage());
+        ex.printStackTrace();
+
         return new ResponseEntity<>(
-                new StandardResponse(500, "Internal Server Error", "An unexpected error occurred"),
+                new StandardResponse(500, "Internal Server Error", ex.getMessage()),
                 HttpStatus.INTERNAL_SERVER_ERROR
         );
     }

@@ -55,10 +55,37 @@ public class FoodItemServiceIMPL implements FoodItemService {
     }
 
     @Override
-    public String updateFoodItem (long ItemId, FoodItemUpdateDTO foodItemUpdateDTO){
-        if(foodItemRepository.existsById(ItemId)){
-            FoodItem foodItem = foodItemRepository.findFoodItemsByItemId(ItemId);
-            foodItemMappers.updateFoodItem(foodItemUpdateDTO , foodItem);
+    public String updateFoodItem (long itemId, FoodItemUpdateDTO foodItemUpdateDTO, MultipartFile imageFile) throws IOException {
+        if(foodItemRepository.existsById(itemId)){
+            FoodItem foodItem = foodItemRepository.findFoodItemsByItemId(itemId);
+
+            // Update basic fields from DTO
+            if(foodItemUpdateDTO.getItemName() != null) {
+                foodItem.setItemName(foodItemUpdateDTO.getItemName());
+            }
+            if(foodItemUpdateDTO.getIngredients() != null) {
+                foodItem.setIngredients(foodItemUpdateDTO.getIngredients());
+            }
+            if(foodItemUpdateDTO.getType() != null) {
+                foodItem.setType(foodItemUpdateDTO.getType());
+            }
+            if(foodItemUpdateDTO.getDescription() != null) {
+                foodItem.setDescription(foodItemUpdateDTO.getDescription());
+            }
+            if(foodItemUpdateDTO.getPrice() > 0) {
+                foodItem.setPrice(foodItemUpdateDTO.getPrice());
+            }
+            if(foodItemUpdateDTO.getPortionSize() != null) {
+                foodItem.setPortionSize(foodItemUpdateDTO.getPortionSize());
+            }
+
+            // Update image only if a new image file is provided
+            if(imageFile != null && !imageFile.isEmpty()) {
+                foodItem.setImageName(imageFile.getOriginalFilename());
+                foodItem.setImageType(imageFile.getContentType());
+                foodItem.setImageData(imageFile.getBytes());
+            }
+
             foodItemRepository.save(foodItem);
             return foodItem.getItemId() + " Updated Successfully";
         }else{
@@ -86,6 +113,16 @@ public class FoodItemServiceIMPL implements FoodItemService {
             FoodItem foodItem = foodItemRepository.findFoodItemsByItemId(itemId);
             ViewFoodItemDTO viewFoodItemDTO = foodItemMappers.FoodItemToViewFoodItemDTO(foodItem);
             return viewFoodItemDTO;
+        }else{
+            throw new NotFoundException("Item Not Found");
+        }
+    }
+
+    @Override
+    public String deleteFoodItem(Long itemId){
+        if(foodItemRepository.existsById(itemId)){
+            foodItemRepository.deleteById(itemId);
+            return "Item "+ itemId + " Deleted Successfully";
         }else{
             throw new NotFoundException("Item Not Found");
         }
