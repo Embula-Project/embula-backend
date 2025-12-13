@@ -45,18 +45,4 @@ jobs:
             docker pull dewmink/embula-backend:latest
             docker stop embula-backend || true
             docker rm embula-backend || true
-            docker run -d \
-              --name embula-backend \
-              -p 8081:8081 \
-              -e MYSQL_URL=${{ secrets.MYSQL_URL }} \
-              -e MYSQL_USERNAME=${{ secrets.DB_USERNAME }} \
-              -e MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              -e TOKEN_VALIDITY=${{ secrets.TOKEN_VALIDITY }} \
-              -e REFRESH_TOKEN_VALIDITY=${{ secrets.REFRESH_TOKEN_VALIDITY }} \
-              -e STRIPE_SECRET=${{ secrets.STRIPE_SECRET }} \
-              -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} \
-              -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
-              -e ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }} \
-              dewmink/embula-backend:latest
-
+            docker run -d --name embula-backend -p 8081:8081 -e MYSQL_URL=${{ secrets.MYSQL_URL }} -e MYSQL_USERNAME=${{ secrets.DB_USERNAME }} -e MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }} -e JWT_SECRET=${{ secrets.JWT_SECRET }} -e TOKEN_VALIDITY=${{ secrets.TOKEN_VALIDITY }} -e REFRESH_TOKEN_VALIDITY=${{ secrets.REFRESH_TOKEN_VALIDITY }} -e STRIPE_SECRET=${{ secrets.STRIPE_SECRET }} -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} -e ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }} dewmink/embula-backend:latest
