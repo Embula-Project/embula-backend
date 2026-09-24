@@ -1,5 +1,6 @@
 package com.embula.embula_backend.services.impl;
 
+import com.embula.embula_backend.dto.request.CustomerResponseRequestDTO;
 import com.embula.embula_backend.dto.request.OrderFoodItemRequest;
 import com.embula.embula_backend.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class EmailServiceIMPL implements EmailService {
     @Value("${spring.mail.admin-mail}")
     private String fromEmail;
 
+    @Value("${spring.mail.recieve-mail}")
+    private String toEmail;
+
     @Override
     public String sendEmail(String to, String subject, String body) {
         SimpleMailMessage message= new SimpleMailMessage();
@@ -28,6 +32,28 @@ public class EmailServiceIMPL implements EmailService {
         message.setText(body);
         mailSender.send(message);
         return "EmailSent";
+    }
+
+    @Override
+    public String sendCustomerResponseNotificationEmail(CustomerResponseRequestDTO customerResponseRequestDTO) {
+        String subject = customerResponseRequestDTO.getComplaintType().name();
+        String body = buildCustomerResponseNotificationEmailBody(customerResponseRequestDTO);
+        return sendEmail(toEmail, subject, body);
+    }
+
+    private String buildCustomerResponseNotificationEmailBody(CustomerResponseRequestDTO customerResponseRequestDTO) {
+        return String.format(
+                "New %s received from Contact Us form%n%n" +
+                        "Name: %s%n" +
+                        "Email: %s%n" +
+                        "Phone: %s%n%n" +
+                        "Message:%n%s",
+                customerResponseRequestDTO.getComplaintType().name().toLowerCase(),
+                customerResponseRequestDTO.getName(),
+                customerResponseRequestDTO.getEmail(),
+                customerResponseRequestDTO.getPhone() != null ? customerResponseRequestDTO.getPhone() : "N/A",
+                customerResponseRequestDTO.getDescription()
+        );
     }
 
     @Override

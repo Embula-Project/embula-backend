@@ -1,5 +1,6 @@
 package com.embula.embula_backend.services;
 
+import com.embula.embula_backend.dto.request.CustomerResponseRequestDTO;
 import com.embula.embula_backend.dto.request.OrderFoodItemRequest;
 import java.util.List;
 
@@ -15,4 +16,6 @@ public interface EmailService {
             String orderDescription,
             List<OrderFoodItemRequest> orderItems
     );
+
+    public String sendCustomerResponseNotificationEmail(CustomerResponseRequestDTO customerResponseRequestDTO);
 }
