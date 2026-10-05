@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Confirmation</title>
+</head>
+<body style="margin:0; padding:0; background-color:#0d0d0d; font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#0d0d0d; padding:32px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%; background-color:#161616; border:1px solid #3a2a10; border-radius:12px; overflow:hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#b45309,#f59e0b); padding:28px 32px; text-align:center;">
+              <div style="font-size:22px; font-weight:700; color:#ffffff; letter-spacing:1px;">EMBULA RESTAURANT</div>
+              <div style="font-size:14px; color:#fff7e6; margin-top:4px;">Order Confirmation</div>
+            </td>
+          </tr>
+
+          <!-- Success banner -->
+          <tr>
+            <td style="padding:28px 32px 0 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#122318; border:1px solid #234d31; border-radius:8px;">
+                <tr>
+                  <td style="padding:16px 18px; color:#4ade80; font-size:15px; font-weight:600;">
+                    &#10003; Payment successful &mdash; your order has been placed
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Greeting -->
+          <tr>
+            <td style="padding:24px 32px 0 32px; color:#e5e7eb; font-size:15px; line-height:1.6;">
+              <p style="margin:0 0 8px 0;">Dear Valued Customer,</p>
+              <p style="margin:0;">Thank you for your order! We're pleased to confirm that your payment has been successfully processed and your order has been saved.</p>
+            </td>
+          </tr>
+
+          <!-- Order summary card -->
+          <tr>
+            <td style="padding:20px 32px 0 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#000000; border:1px solid #3a2a10; border-radius:8px;">
+                <tr>
+                  <td style="padding:18px 20px;">
+                    <div style="color:#f59e0b; font-size:13px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:12px;">Order Details</div>
+
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding:4px 0; color:#9ca3af; font-size:14px;">Order ID</td>
+                        <td style="padding:4px 0; color:#ffffff; font-size:14px; text-align:right; font-weight:600;" th:text="'#' + ${orderId}">#1001</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0; color:#9ca3af; font-size:14px;">Order Type</td>
+                        <td style="padding:4px 0; color:#ffffff; font-size:14px; text-align:right; font-weight:600;" th:text="${orderTypeLabel}">Dine In</td>
+                      </tr>
+                      <tr th:if="${orderDescription != null and !orderDescription.isEmpty()}">
+                        <td style="padding:4px 0; color:#9ca3af; font-size:14px;">Description</td>
+                        <td style="padding:4px 0; color:#ffffff; font-size:14px; text-align:right;" th:text="${orderDescription}">2x Burger, 1x Fries</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0; color:#9ca3af; font-size:14px;">Payment ID</td>
+                        <td style="padding:4px 0; color:#ffffff; font-size:14px; text-align:right;" th:text="${paymentId}">pay_123</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0; color:#9ca3af; font-size:14px;">Customer Email</td>
+                        <td style="padding:4px 0; color:#ffffff; font-size:14px; text-align:right;" th:text="${customerEmail}">customer@email.com</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Dine In / Take Away scheduling -->
+          <tr th:if="${scheduledDate != null}">
+            <td style="padding:16px 32px 0 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#000000; border:1px solid #3a2a10; border-radius:8px;">
+                <tr>
+                  <td style="padding:18px 20px;">
+                    <div style="color:#f59e0b; font-size:13px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:12px;" th:text="${scheduleLabel}">Reservation</div>
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding:4px 0; color:#9ca3af; font-size:14px;">Date</td>
+                        <td style="padding:4px 0; color:#ffffff; font-size:14px; text-align:right; font-weight:600;" th:text="${scheduledDate}">2026-09-25</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0; color:#9ca3af; font-size:14px;">Time</td>
+                        <td style="padding:4px 0; color:#ffffff; font-size:14px; text-align:right; font-weight:600;" th:text="${scheduledTime}">19:30</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Delivery details -->
+          <tr th:if="${deliveryAddress != null}">
+            <td style="padding:16px 32px 0 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#000000; border:1px solid #3a2a10; border-radius:8px;">
+                <tr>
+                  <td style="padding:18px 20px;">
+                    <div style="color:#f59e0b; font-size:13px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:12px;">Delivery Details</div>
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding:4px 0; color:#9ca3af; font-size:14px; vertical-align:top;">Address</td>
+                        <td style="padding:4px 0; color:#ffffff; font-size:14px; text-align:right;" th:text="${deliveryAddress}">123 Main Street</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0; color:#9ca3af; font-size:14px;">Phone</td>
+                        <td style="padding:4px 0; color:#ffffff; font-size:14px; text-align:right; font-weight:600;" th:text="${deliveryPhone}">+94 71 234 5678</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Order items -->
+          <tr th:if="${orderItems != null and !orderItems.isEmpty()}">
+            <td style="padding:16px 32px 0 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#000000; border:1px solid #3a2a10; border-radius:8px;">
+                <tr>
+                  <td style="padding:18px 20px;">
+                    <div style="color:#f59e0b; font-size:13px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:12px;">Order Items</div>
+
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr th:each="item : ${orderItems}">
+                        <td style="padding:8px 0; border-top:1px solid #221a0d; color:#e5e7eb; font-size:14px;">
+                          <span th:text="${item.itemName}">Chicken Burger</span>
+                          <span style="color:#9ca3af;" th:text="' &times; ' + ${item.qty}">&times; 2</span>
+                        </td>
+                        <td style="padding:8px 0; border-top:1px solid #221a0d; color:#ffffff; font-size:14px; text-align:right;" th:text="'LKR ' + ${#numbers.formatDecimal(item.amount * item.qty, 1, 2)}">LKR 1500.00</td>
+                      </tr>
+                    </table>
+
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:12px; border-top:1px solid #3a2a10;">
+                      <tr>
+                        <td style="padding-top:12px; color:#f59e0b; font-size:16px; font-weight:700;">Total Paid</td>
+                        <td style="padding-top:12px; color:#f59e0b; font-size:16px; font-weight:700; text-align:right;" th:text="'LKR ' + ${#numbers.formatDecimal(totalAmount, 1, 2)}">LKR 1700.00</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- What's next -->
+          <tr>
+            <td style="padding:24px 32px 0 32px; color:#e5e7eb; font-size:14px; line-height:1.6;">
+              <div style="color:#f59e0b; font-size:13px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:8px;">What's Next?</div>
+              <p style="margin:0 0 6px 0;" th:text="${nextStepsMessage}">Your order is being prepared and will be ready shortly.</p>
+              <p style="margin:0; color:#9ca3af;">You will receive updates on your order status via email.</p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:28px 32px 32px 32px; text-align:center;">
+              <p style="margin:0 0 4px 0; color:#e5e7eb; font-size:14px;">Thank you for choosing Embula Restaurant!</p>
+              <p style="margin:0 0 16px 0; color:#9ca3af; font-size:13px;">We look forward to serving you again.</p>
+              <div style="border-top:1px solid #221a0d; padding-top:16px; color:#6b7280; font-size:12px; line-height:1.6;">
+                This is an automated message &mdash; please do not reply to this email.<br />
+                For support inquiries, contact <span style="color:#f59e0b;">support@embula.com</span>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

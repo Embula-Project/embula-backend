@@ -8,10 +8,13 @@ import com.embula.embula_backend.dto.request.RequestOrderFoodItemSaveDTO;
 import com.embula.embula_backend.dto.request.RequestOrderSaveDTO;
 import com.embula.embula_backend.dto.response.StatusCustomerOrdersDTO;
 import com.embula.embula_backend.dto.response.ViewOrderDTO;
+import com.embula.embula_backend.entity.DeliveryOrder;
+import com.embula.embula_backend.entity.DineInOrder;
 import com.embula.embula_backend.entity.FoodItem;
 import com.embula.embula_backend.entity.Order;
 import com.embula.embula_backend.entity.OrderFoodItem;
 import com.embula.embula_backend.entity.Payment;
+import com.embula.embula_backend.entity.TakeAwayOrder;
 import com.embula.embula_backend.entity.enums.OrderStatus;
 import com.embula.embula_backend.entity.enums.OrderType;
 import com.embula.embula_backend.exception.NotFoundException;
@@ -57,6 +60,15 @@ public class OrderServiceIMPL implements OrderService {
     @Autowired
     private PaymentRepository paymentRepository;
 
+    @Autowired
+    private DineInOrderRepository dineInOrderRepository;
+
+    @Autowired
+    private TakeAwayOrderRepository takeAwayOrderRepository;
+
+    @Autowired
+    private DeliveryOrderRepository deliveryOrderRepository;
+
     @Override
     public String saveOrder(RequestOrderSaveDTO requestOrderSaveDTO){
         Order order= new Order(
@@ -85,7 +97,7 @@ public class OrderServiceIMPL implements OrderService {
     }
 
     @Override
-    public String saveOrderWithPayment(RequestOrderSaveDTO requestOrderSaveDTO, Payment payment) {
+    public Order saveOrderWithPayment(RequestOrderSaveDTO requestOrderSaveDTO, Payment payment) {
         try {
             System.out.println("=== Starting saveOrderWithPayment ===");
             System.out.println("Customer ID: " + requestOrderSaveDTO.getCustomers());
@@ -112,6 +124,40 @@ public class OrderServiceIMPL implements OrderService {
             orderRepository.save(order);
             System.out.println("Order saved with ID: " + order.getOrderId());
 
+            // Persist the order-type-specific details into its own dedicated table,
+            // now that the Order (and its Stripe-confirmed Payment) is saved.
+            switch (order.getOrderType()) {
+                case DineIn -> {
+                    DineInOrder dineInOrder = new DineInOrder();
+                    dineInOrder.setOrder(order);
+                    dineInOrder.setReservationDate(requestOrderSaveDTO.getScheduledDate() != null
+                            ? requestOrderSaveDTO.getScheduledDate() : LocalDate.now());
+                    dineInOrder.setReservationTime(requestOrderSaveDTO.getScheduledTime() != null
+                            ? requestOrderSaveDTO.getScheduledTime() : LocalTime.now());
+                    dineInOrderRepository.save(dineInOrder);
+                }
+                case TakeAway -> {
+                    TakeAwayOrder takeAwayOrder = new TakeAwayOrder();
+                    takeAwayOrder.setOrder(order);
+                    takeAwayOrder.setPickupDate(requestOrderSaveDTO.getScheduledDate() != null
+                            ? requestOrderSaveDTO.getScheduledDate() : LocalDate.now());
+                    takeAwayOrder.setPickupTime(requestOrderSaveDTO.getScheduledTime() != null
+                            ? requestOrderSaveDTO.getScheduledTime() : LocalTime.now());
+                    takeAwayOrderRepository.save(takeAwayOrder);
+                }
+                case Delivery -> {
+                    if (requestOrderSaveDTO.getDeliveryAddress() == null || requestOrderSaveDTO.getDeliveryAddress().isBlank()
+                            || requestOrderSaveDTO.getDeliveryPhone() == null || requestOrderSaveDTO.getDeliveryPhone().isBlank()) {
+                        throw new RuntimeException("Delivery address and phone number are required for delivery orders");
+                    }
+                    DeliveryOrder deliveryOrder = new DeliveryOrder();
+                    deliveryOrder.setOrder(order);
+                    deliveryOrder.setDeliveryAddress(requestOrderSaveDTO.getDeliveryAddress());
+                    deliveryOrder.setDeliveryPhone(requestOrderSaveDTO.getDeliveryPhone());
+                    deliveryOrderRepository.save(deliveryOrder);
+                }
+            }
+
             // Save order food items if provided
             if (requestOrderSaveDTO.getOrderFoodItem() != null && !requestOrderSaveDTO.getOrderFoodItem().isEmpty()) {
                 System.out.println("Saving " + requestOrderSaveDTO.getOrderFoodItem().size() + " order food items...");
@@ -133,9 +179,8 @@ public class OrderServiceIMPL implements OrderService {
                 System.out.println("No order food items to save");
             }
 
-            String result = "Order " + order.getOrderId() + " saved successfully with Payment " + payment.getPaymentId();
-            System.out.println("=== " + result + " ===");
-            return result;
+            System.out.println("=== Order " + order.getOrderId() + " saved successfully with Payment " + payment.getPaymentId() + " ===");
+            return order;
         } catch (Exception e) {
             System.err.println("=== ERROR in saveOrderWithPayment ===");
             System.err.println("Error message: " + e.getMessage());

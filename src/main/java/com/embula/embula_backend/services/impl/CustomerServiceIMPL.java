@@ -3,6 +3,7 @@ package com.embula.embula_backend.services.impl;
 import com.embula.embula_backend.dto.CustomerDTO;
 import com.embula.embula_backend.dto.response.ViewCustomerDTO;
 import com.embula.embula_backend.entity.Customer;
+import com.embula.embula_backend.exception.NotFoundException;
 import com.embula.embula_backend.repository.CustomerRepository;
 import com.embula.embula_backend.services.CustomerService;
 import com.embula.embula_backend.util.mappers.CustomerMappers;
@@ -44,5 +45,21 @@ public class CustomerServiceIMPL implements CustomerService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ViewCustomerDTO getCustomerById(String id) {
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Customer not found with id: " + id));
+
+        ViewCustomerDTO dto = new ViewCustomerDTO();
+        dto.setId(customer.getId());
+        dto.setFirstName(customer.getFirstName());
+        dto.setLastName(customer.getLastName());
+        dto.setEmail(customer.getEmail());
+        dto.setStatus(customer.getStatus());
+        dto.setAddress(customer.getAddress());
+        dto.setPhone(customer.getPhone());
+        return dto;
     }
 }

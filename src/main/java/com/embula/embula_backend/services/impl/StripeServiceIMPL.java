@@ -6,6 +6,7 @@ import com.embula.embula_backend.dto.request.PaymentRequest;
 import com.embula.embula_backend.dto.request.RequestOrderFoodItemSaveDTO;
 import com.embula.embula_backend.dto.request.RequestOrderSaveDTO;
 import com.embula.embula_backend.dto.response.PaymentResponse;
+import com.embula.embula_backend.entity.Order;
 import com.embula.embula_backend.entity.Payment;
 import com.embula.embula_backend.entity.enums.OrderType;
 import com.embula.embula_backend.services.EmailService;
@@ -23,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,7 +74,11 @@ public class StripeServiceIMPL implements StripeService {
                 .putMetadata("customerEmail", paymentRequest.getCustomerEmail())
                 .putMetadata("orderName", paymentRequest.getOrderName())
                 .putMetadata("orderDescription", paymentRequest.getOrderDescription() != null ? paymentRequest.getOrderDescription() : "")
-                .putMetadata("orderType", paymentRequest.getOrderType() != null ? paymentRequest.getOrderType() : "DINE_IN");
+                .putMetadata("orderType", paymentRequest.getOrderType() != null ? paymentRequest.getOrderType() : "DineIn")
+                .putMetadata("scheduledDate", paymentRequest.getScheduledDate() != null ? paymentRequest.getScheduledDate() : "")
+                .putMetadata("scheduledTime", paymentRequest.getScheduledTime() != null ? paymentRequest.getScheduledTime() : "")
+                .putMetadata("deliveryAddress", paymentRequest.getDeliveryAddress() != null ? paymentRequest.getDeliveryAddress() : "")
+                .putMetadata("deliveryPhone", paymentRequest.getDeliveryPhone() != null ? paymentRequest.getDeliveryPhone() : "");
 
         // Serialize order food items to JSON if provided
         if (paymentRequest.getOrderFoodItems() != null && !paymentRequest.getOrderFoodItems().isEmpty()) {
@@ -142,6 +149,10 @@ public class StripeServiceIMPL implements StripeService {
                 String orderDescription = session.getMetadata().get("orderDescription");
                 String orderType = session.getMetadata().get("orderType");
                 String orderFoodItemsJson = session.getMetadata().get("orderFoodItems");
+                String scheduledDate = session.getMetadata().get("scheduledDate");
+                String scheduledTime = session.getMetadata().get("scheduledTime");
+                String deliveryAddress = session.getMetadata().get("deliveryAddress");
+                String deliveryPhone = session.getMetadata().get("deliveryPhone");
 
                 // Validate customerId
                 if (customerId == null || customerId.isEmpty()) {
@@ -156,13 +167,23 @@ public class StripeServiceIMPL implements StripeService {
 
                 // Parse and set order type
                 try {
-                    orderSaveDTO.setOrderType(OrderType.valueOf(orderType != null ? orderType : "DINE_IN"));
+                    orderSaveDTO.setOrderType(OrderType.valueOf(orderType != null ? orderType : "DineIn"));
                 } catch (IllegalArgumentException e) {
-                    System.err.println("Invalid order type: " + orderType + ", defaulting to DINE_IN");
+                    System.err.println("Invalid order type: " + orderType + ", defaulting to DineIn");
                     orderSaveDTO.setOrderType(OrderType.DineIn);
                 }
 
                 orderSaveDTO.setPaymentId(savedPayment.getPaymentId());
+
+                // Parse scheduling / delivery details captured at checkout
+                if (scheduledDate != null && !scheduledDate.isEmpty()) {
+                    orderSaveDTO.setScheduledDate(LocalDate.parse(scheduledDate));
+                }
+                if (scheduledTime != null && !scheduledTime.isEmpty()) {
+                    orderSaveDTO.setScheduledTime(LocalTime.parse(scheduledTime));
+                }
+                orderSaveDTO.setDeliveryAddress(deliveryAddress != null && !deliveryAddress.isEmpty() ? deliveryAddress : null);
+                orderSaveDTO.setDeliveryPhone(deliveryPhone != null && !deliveryPhone.isEmpty() ? deliveryPhone : null);
 
                 // Parse order food items from JSON if available
                 List<OrderFoodItemRequest> foodItemRequests = new ArrayList<>();
@@ -187,24 +208,35 @@ public class StripeServiceIMPL implements StripeService {
                     }
                 }
 
-                // 3. Save order with payment reference
+                // 3. Save order (with payment reference and its order-type-specific row) — only
+                // once this has committed do we know the order was actually persisted, so the
+                // confirmation email is sent after this call, never before.
                 System.out.println("Now calling orderService.saveOrderWithPayment...");
+                Order savedOrder;
                 try {
-                    String orderResult = orderService.saveOrderWithPayment(orderSaveDTO, savedPayment);
-                    emailService.sendOrderConfirmationEmail(
-                        customerEmail,
-                        savedPayment.getPaymentId(),
-                        savedPayment.getPaymentAmount(),
-                        orderName,
-                        orderDescription,
-                        foodItemRequests
-                    );
-
-                    return "Payment " + savedPayment.getPaymentId() + " processed successfully. " + orderResult;
+                    savedOrder = orderService.saveOrderWithPayment(orderSaveDTO, savedPayment);
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new RuntimeException("Payment " + savedPayment.getPaymentId() + " saved but order creation failed: " + e.getMessage(), e);
                 }
+
+                try {
+                    emailService.sendOrderConfirmationEmail(
+                        savedOrder,
+                        customerEmail,
+                        savedPayment.getPaymentId(),
+                        savedPayment.getPaymentAmount(),
+                        orderDescription,
+                        foodItemRequests
+                    );
+                } catch (Exception e) {
+                    // Order is already saved at this point — a failed confirmation email
+                    // should not be reported as an order-creation failure.
+                    e.printStackTrace();
+                    System.err.println("Order " + savedOrder.getOrderId() + " saved successfully but confirmation email failed: " + e.getMessage());
+                }
+
+                return "Payment " + savedPayment.getPaymentId() + " processed successfully. Order " + savedOrder.getOrderId() + " saved successfully with Payment " + savedPayment.getPaymentId();
 
             } else {
                 throw new RuntimeException("Payment was not successful. Status: " + session.getPaymentStatus());

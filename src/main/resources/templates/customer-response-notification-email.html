@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Contact Us Submission</title>
+</head>
+<body style="margin:0; padding:0; background-color:#0d0d0d; font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#0d0d0d; padding:32px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%; background-color:#161616; border:1px solid #3a2a10; border-radius:12px; overflow:hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#b45309,#f59e0b); padding:28px 32px; text-align:center;">
+              <div style="font-size:22px; font-weight:700; color:#ffffff; letter-spacing:1px;">EMBULA RESTAURANT</div>
+              <div style="font-size:14px; color:#fff7e6; margin-top:4px;">New Contact Us Submission</div>
+            </td>
+          </tr>
+
+          <!-- Type banner -->
+          <tr>
+            <td style="padding:28px 32px 0 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#122130; border:1px solid #234061; border-radius:8px;">
+                <tr>
+                  <td style="padding:16px 18px; color:#60a5fa; font-size:15px; font-weight:600;">
+                    A new <span th:text="${complaintTypeLabel}">feedback</span> was submitted from the Contact Us form
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Submitter details -->
+          <tr>
+            <td style="padding:20px 32px 0 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#000000; border:1px solid #3a2a10; border-radius:8px;">
+                <tr>
+                  <td style="padding:18px 20px;">
+                    <div style="color:#f59e0b; font-size:13px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:12px;">Submitted By</div>
+
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding:4px 0; color:#9ca3af; font-size:14px;">Name</td>
+                        <td style="padding:4px 0; color:#ffffff; font-size:14px; text-align:right; font-weight:600;" th:text="${name}">Jane Doe</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0; color:#9ca3af; font-size:14px;">Email</td>
+                        <td style="padding:4px 0; color:#ffffff; font-size:14px; text-align:right;" th:text="${email}">jane@example.com</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0; color:#9ca3af; font-size:14px;">Phone</td>
+                        <td style="padding:4px 0; color:#ffffff; font-size:14px; text-align:right;" th:text="${phone != null and !phone.isEmpty()} ? ${phone} : 'N/A'">N/A</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0; color:#9ca3af; font-size:14px;">Type</td>
+                        <td style="padding:4px 0; color:#ffffff; font-size:14px; text-align:right; font-weight:600;" th:text="${complaintTypeLabel}">Feedback</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Message -->
+          <tr>
+            <td style="padding:16px 32px 0 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#000000; border:1px solid #3a2a10; border-radius:8px;">
+                <tr>
+                  <td style="padding:18px 20px;">
+                    <div style="color:#f59e0b; font-size:13px; font-weight:700; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:12px;">Message</div>
+                    <p style="margin:0; color:#e5e7eb; font-size:14px; line-height:1.6; white-space:pre-line;" th:text="${description}">Message content goes here.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:28px 32px 32px 32px; text-align:center;">
+              <div style="border-top:1px solid #221a0d; padding-top:16px; color:#6b7280; font-size:12px; line-height:1.6;">
+                This is an automated notification from the Embula Contact Us form.
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

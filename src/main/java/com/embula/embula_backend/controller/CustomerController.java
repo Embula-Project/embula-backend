@@ -2,12 +2,14 @@ package com.embula.embula_backend.controller;
 
 
 import com.embula.embula_backend.dto.CustomerDTO;
+import com.embula.embula_backend.dto.response.ViewCustomerDTO;
 import com.embula.embula_backend.services.CustomerService;
 import com.embula.embula_backend.util.StandardResponse;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,6 +28,16 @@ public class CustomerController {
                 HttpStatus.OK
         );
         return responseEntity;
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<StandardResponse> getCustomerById(@PathVariable String id){
+        ViewCustomerDTO customer = customerService.getCustomerById(id);
+        return new ResponseEntity<>(
+                new StandardResponse(200, "Success", customer),
+                HttpStatus.OK
+        );
     }
 
 }

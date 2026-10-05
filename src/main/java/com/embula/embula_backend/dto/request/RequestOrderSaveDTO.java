@@ -31,4 +31,12 @@ public class RequestOrderSaveDTO {
     private String customers;
     private String paymentId;
     private List<RequestOrderFoodItemSaveDTO> orderFoodItem;
+
+    // Dine In / Take Away scheduling
+    private LocalDate scheduledDate;
+    private LocalTime scheduledTime;
+
+    // Delivery details (order-specific, not saved to the customer's profile)
+    private String deliveryAddress;
+    private String deliveryPhone;
 }
