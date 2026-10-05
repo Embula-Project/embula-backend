@@ -19,4 +19,12 @@ public class PaymentRequest {
     private String orderDescription;
     private String orderType;
     private List<OrderFoodItemRequest> orderFoodItems;
+
+    // Dine In / Take Away scheduling (ISO-8601: "yyyy-MM-dd" / "HH:mm")
+    private String scheduledDate;
+    private String scheduledTime;
+
+    // Delivery details (not persisted to the customer's profile — order-specific only)
+    private String deliveryAddress;
+    private String deliveryPhone;
 }

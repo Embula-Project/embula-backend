@@ -2,20 +2,37 @@ package com.embula.embula_backend.services.impl;
 
 import com.embula.embula_backend.dto.request.CustomerResponseRequestDTO;
 import com.embula.embula_backend.dto.request.OrderFoodItemRequest;
+import com.embula.embula_backend.entity.DeliveryOrder;
+import com.embula.embula_backend.entity.DineInOrder;
+import com.embula.embula_backend.entity.Order;
+import com.embula.embula_backend.entity.TakeAwayOrder;
+import com.embula.embula_backend.entity.enums.OrderType;
+import com.embula.embula_backend.repository.DeliveryOrderRepository;
+import com.embula.embula_backend.repository.DineInOrderRepository;
+import com.embula.embula_backend.repository.TakeAwayOrderRepository;
 import com.embula.embula_backend.services.EmailService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class EmailServiceIMPL implements EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
+    private final SpringTemplateEngine templateEngine;
+    private final DineInOrderRepository dineInOrderRepository;
+    private final TakeAwayOrderRepository takeAwayOrderRepository;
+    private final DeliveryOrderRepository deliveryOrderRepository;
 
     @Value("${spring.mail.admin-mail}")
     private String fromEmail;
@@ -25,7 +42,7 @@ public class EmailServiceIMPL implements EmailService {
 
     @Override
     public String sendEmail(String to, String subject, String body) {
-        SimpleMailMessage message= new SimpleMailMessage();
+        SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromEmail);
         message.setTo(to);
         message.setSubject(subject);
@@ -34,117 +51,110 @@ public class EmailServiceIMPL implements EmailService {
         return "EmailSent";
     }
 
+    /**
+     * Renders a Thymeleaf template from src/main/resources/templates/ and sends it as an HTML email.
+     */
+    private String sendHtmlEmail(String to, String subject, String templateName, Context context) {
+        String htmlBody = templateEngine.process(templateName, context);
+
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlBody, true);
+            mailSender.send(mimeMessage);
+            return "EmailSent";
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send email: " + e.getMessage(), e);
+        }
+    }
+
     @Override
     public String sendCustomerResponseNotificationEmail(CustomerResponseRequestDTO customerResponseRequestDTO) {
-        String subject = customerResponseRequestDTO.getComplaintType().name();
-        String body = buildCustomerResponseNotificationEmailBody(customerResponseRequestDTO);
-        return sendEmail(toEmail, subject, body);
-    }
+        String complaintTypeLabel = toDisplayLabel(customerResponseRequestDTO.getComplaintType().name());
+        String subject = "New " + complaintTypeLabel + " - Contact Us";
 
-    private String buildCustomerResponseNotificationEmailBody(CustomerResponseRequestDTO customerResponseRequestDTO) {
-        return String.format(
-                "New %s received from Contact Us form%n%n" +
-                        "Name: %s%n" +
-                        "Email: %s%n" +
-                        "Phone: %s%n%n" +
-                        "Message:%n%s",
-                customerResponseRequestDTO.getComplaintType().name().toLowerCase(),
-                customerResponseRequestDTO.getName(),
-                customerResponseRequestDTO.getEmail(),
-                customerResponseRequestDTO.getPhone() != null ? customerResponseRequestDTO.getPhone() : "N/A",
-                customerResponseRequestDTO.getDescription()
-        );
+        Context context = new Context();
+        context.setVariable("name", customerResponseRequestDTO.getName());
+        context.setVariable("email", customerResponseRequestDTO.getEmail());
+        context.setVariable("phone", customerResponseRequestDTO.getPhone());
+        context.setVariable("complaintTypeLabel", complaintTypeLabel);
+        context.setVariable("description", customerResponseRequestDTO.getDescription());
+
+        return sendHtmlEmail(toEmail, subject, "customer-response-notification-email", context);
     }
 
     @Override
-    public String sendOrderConfirmationEmail(String customerEmail, String paymentId, double totalAmount, String orderName, String orderDescription, List<OrderFoodItemRequest> orderItems) {
-        String subject = "Order Confirmed - Payment Successful";
-        String body = buildOrderConfirmationEmailBody(
-                customerEmail,
-                paymentId,
-                totalAmount,
-                orderName,
-                orderDescription,
-                orderItems
-        );
-        return sendEmail(customerEmail, subject, body);
-    }
-
-
-    private String buildOrderConfirmationEmailBody(
+    public String sendOrderConfirmationEmail(
+            Order order,
             String customerEmail,
             String paymentId,
             double totalAmount,
-            String orderName,
             String orderDescription,
             List<OrderFoodItemRequest> orderItems) {
 
-        StringBuilder emailBody = new StringBuilder();
+        String subject = "Order Confirmed - Payment Successful";
 
-        emailBody.append("Dear Valued Customer,\n\n");
-        emailBody.append("Thank you for your order! We're pleased to confirm that your payment has been successfully processed.\n\n");
-        emailBody.append("═══════════════════════════════════════════\n");
-        emailBody.append("ORDER CONFIRMATION\n");
-        emailBody.append("═══════════════════════════════════════════\n\n");
+        Context context = new Context();
+        context.setVariable("orderId", order.getOrderId());
+        context.setVariable("orderTypeLabel", toDisplayLabel(order.getOrderType().name()));
+        context.setVariable("orderDescription", orderDescription);
+        context.setVariable("paymentId", paymentId);
+        context.setVariable("customerEmail", customerEmail);
+        context.setVariable("orderItems", orderItems);
+        context.setVariable("totalAmount", totalAmount);
+        context.setVariable("nextStepsMessage", nextStepsMessageFor(order.getOrderType()));
 
-        // Payment Details Section
-        emailBody.append("PAYMENT DETAILS:\n");
-        emailBody.append("─────────────────────────────────────────\n");
-        emailBody.append(String.format("Payment ID:        %s\n", paymentId));
-        emailBody.append(String.format("Total Amount:      LKR %.2f\n", totalAmount));
-        emailBody.append(String.format("Payment Method:    Credit/Debit Card\n"));
-        emailBody.append(String.format("Customer Email:    %s\n\n", customerEmail));
+        applyOrderTypeDetails(order, context);
 
-        // Order Details Section
-        emailBody.append("ORDER DETAILS:\n");
-        emailBody.append("─────────────────────────────────────────\n");
-        emailBody.append(String.format("Order Name:        %s\n", orderName != null ? orderName : "N/A"));
+        return sendHtmlEmail(customerEmail, subject, "order-confirmation-email", context);
+    }
 
-        if (orderDescription != null && !orderDescription.isEmpty()) {
-            emailBody.append(String.format("Description:       %s\n", orderDescription));
+    /**
+     * Looks up the order-type-specific row (DineInOrder/TakeAwayOrder/DeliveryOrder)
+     * for the given order and exposes its details to the email template.
+     */
+    private void applyOrderTypeDetails(Order order, Context context) {
+        if (order.getOrderType() == OrderType.DineIn) {
+            dineInOrderRepository.findByOrder_OrderId(order.getOrderId()).ifPresent(dineIn -> {
+                context.setVariable("scheduleLabel", "Reservation");
+                context.setVariable("scheduledDate", dineIn.getReservationDate());
+                context.setVariable("scheduledTime", dineIn.getReservationTime());
+            });
+        } else if (order.getOrderType() == OrderType.TakeAway) {
+            takeAwayOrderRepository.findByOrder_OrderId(order.getOrderId()).ifPresent(takeAway -> {
+                context.setVariable("scheduleLabel", "Pickup");
+                context.setVariable("scheduledDate", takeAway.getPickupDate());
+                context.setVariable("scheduledTime", takeAway.getPickupTime());
+            });
+        } else if (order.getOrderType() == OrderType.Delivery) {
+            deliveryOrderRepository.findByOrder_OrderId(order.getOrderId()).ifPresent(delivery -> {
+                context.setVariable("deliveryAddress", delivery.getDeliveryAddress());
+                context.setVariable("deliveryPhone", delivery.getDeliveryPhone());
+            });
         }
+    }
 
-        // Order Items Section
-        if (orderItems != null && !orderItems.isEmpty()) {
-            emailBody.append("\nORDER ITEMS:\n");
-            emailBody.append("─────────────────────────────────────────\n");
+    private String nextStepsMessageFor(OrderType orderType) {
+        return switch (orderType) {
+            case DineIn -> "Your table reservation is confirmed. We look forward to welcoming you.";
+            case TakeAway -> "Your order is being prepared and will be ready for pickup at your selected time.";
+            case Delivery -> "Your order is being prepared and will be delivered to your address.";
+        };
+    }
 
-            double itemsTotal = 0.0;
-            for (OrderFoodItemRequest item : orderItems) {
-                double itemTotal = item.getAmount() * item.getQty();
-                itemsTotal += itemTotal;
-                emailBody.append(String.format("• %s\n", item.getItemName()));
-                emailBody.append(String.format("  Quantity: %d × LKR %.2f = LKR %.2f\n\n",
-                    item.getQty(), item.getAmount(), itemTotal));
-            }
-
-            emailBody.append("─────────────────────────────────────────\n");
-            emailBody.append(String.format("Subtotal:          LKR %.2f\n", itemsTotal));
-            emailBody.append(String.format("Total Paid:        LKR %.2f\n", totalAmount));
+    private String toDisplayLabel(String enumName) {
+        // Splits PascalCase / UPPER_SNAKE_CASE enum names into a readable label, e.g. "DineIn" -> "Dine In".
+        String spaced = enumName.replaceAll("_", " ").replaceAll("([a-z])([A-Z])", "$1 $2");
+        String[] words = spaced.toLowerCase().split(" ");
+        StringBuilder result = new StringBuilder();
+        for (String word : words) {
+            if (word.isEmpty()) continue;
+            if (!result.isEmpty()) result.append(" ");
+            result.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
         }
-
-        emailBody.append("\n═══════════════════════════════════════════\n\n");
-
-        // Footer Section
-        emailBody.append("WHAT'S NEXT?\n");
-        emailBody.append("─────────────────────────────────────────\n");
-        emailBody.append("Your order is being prepared and will be ready shortly.\n");
-        emailBody.append("You will receive updates on your order status via email.\n\n");
-
-        emailBody.append("Need Help?\n");
-        emailBody.append("If you have any questions or concerns about your order,\n");
-        emailBody.append("please don't hesitate to contact our support team.\n\n");
-
-        emailBody.append("Thank you for choosing Embula Restaurant!\n");
-        emailBody.append("We look forward to serving you again.\n\n");
-
-        emailBody.append("Best regards,\n");
-        emailBody.append("Embula Restaurant Team\n\n");
-
-        emailBody.append("─────────────────────────────────────────\n");
-        emailBody.append("This is an automated message. Please do not reply to this email.\n");
-        emailBody.append("For support inquiries, please contact: support@embula.com\n");
-
-        return emailBody.toString();
+        return result.toString();
     }
 }
